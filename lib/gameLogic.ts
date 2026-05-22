@@ -1,0 +1,180 @@
+import { GameStats, GameResult } from '@/types/game';
+import { getEnding } from './endings';
+import { getScenario } from './resultText';
+import { getRecommendations } from './recommendations';
+
+export const INITIAL_STATS: GameStats = {
+  money: 50,
+  career: 50,
+  health: 50,
+  freedom: 50,
+  relationshipCapital: 50,
+  familyCapital: 50,
+  nextGeneration: 50,
+  outsideWorkBelonging: 50,
+  meaningCapital: 50,
+  emergencySupport: 50,
+};
+
+// ステータスを0〜100の範囲に収める関数
+export function clamp(value: number): number {
+  return Math.max(0, Math.min(100, value));
+}
+
+// ステータスを適用し、更新されたステータスを返す関数
+export function applyEffects(currentStats: GameStats, effects: Partial<GameStats>): GameStats {
+  const newStats = { ...currentStats };
+  (Object.keys(INITIAL_STATS) as Array<keyof GameStats>).forEach((key) => {
+    if (effects[key] !== undefined) {
+      newStats[key] = clamp(newStats[key] + (effects[key] ?? 0));
+    }
+  });
+  return newStats;
+}
+
+// 孤独リスクの計算
+export function calculateLonelinessRisk(stats: GameStats): number {
+  // 1. 重み付き充足度の計算
+  // relationshipCapital: 22%
+  // familyCapital: 15%
+  // nextGeneration: 15%
+  // outsideWorkBelonging: 12%
+  // emergencySupport: 18%
+  // health: 8%
+  // money: 5%
+  // meaningCapital: 5%
+  const weightedFulfillment =
+    stats.relationshipCapital * 0.22 +
+    stats.familyCapital * 0.15 +
+    stats.nextGeneration * 0.15 +
+    stats.outsideWorkBelonging * 0.12 +
+    stats.emergencySupport * 0.18 +
+    stats.health * 0.08 +
+    stats.money * 0.05 +
+    stats.meaningCapital * 0.05;
+
+  let risk = 100 - weightedFulfillment;
+
+  // 2. 各種補正
+  // moneyが高い場合、最大5点だけ孤独リスクを下げる
+  if (stats.money >= 60) {
+    const moneyDiscount = stats.emergencySupport < 40 ? 2 : 5;
+    risk -= moneyDiscount;
+  }
+
+  // healthが30未満なら孤独リスクを8点上げる
+  if (stats.health < 30) {
+    risk += 8;
+  }
+
+  // relationshipCapital と emergencySupport が両方40未満なら孤独リスクを10点上げる
+  if (stats.relationshipCapital < 40 && stats.emergencySupport < 40) {
+    risk += 10;
+  }
+
+  // nextGeneration と familyCapital が両方30未満で、outsideWorkBelongingも40未満なら孤独リスクを8点上げる
+  if (stats.nextGeneration < 30 && stats.familyCapital < 30 && stats.outsideWorkBelonging < 40) {
+    risk += 8;
+  }
+
+  // meaningCapital が 70 以上なら孤独リスクを 5 点下げる
+  if (stats.meaningCapital >= 70) {
+    risk -= 5;
+  }
+
+  // health が 70 以上 かつ outsideWorkBelonging が 70 以上なら孤独リスクを 5 点下げる
+  if (stats.health >= 70 && stats.outsideWorkBelonging >= 70) {
+    risk -= 5;
+  }
+
+  // 新たなペナルティ：自由・キャリアが高く関係資本が低い場合リスク上昇
+  if (stats.freedom >= 60 && stats.career >= 60 && (stats.relationshipCapital < 40 || stats.emergencySupport < 40)) {
+    risk += 5;
+  }
+  // お金が高く関係資本が低い場合リスク上昇
+  if (stats.money >= 70 && stats.relationshipCapital < 40) {
+    risk += 5;
+  }
+// 家族資本・次世代・地域所属が高い場合リスクを下げる
+if (stats.familyCapital >= 60) {
+  risk -= 5;
+}
+if (stats.nextGeneration >= 60) {
+  risk -= 5;
+}
+if (stats.outsideWorkBelonging >= 60) {
+  risk -= 5;
+}
+
+// 最終的な値を0〜100に丸める
+  return Math.round(clamp(risk));
+}
+
+// リスク帯の判定
+export function getRiskBand(risk: number): { band: GameResult['riskBand']; label: string } {
+  if (risk <= 24) return { band: 'low', label: '低リスク' };
+  if (risk <= 49) return { band: 'semiLow', label: 'やや低リスク' };
+  if (risk <= 69) return { band: 'medium', label: '中リスク' };
+  if (risk <= 84) return { band: 'high', label: '高リスク' };
+  return { band: 'critical', label: '要対策リスク' };
+}
+
+// 強み・弱みの抽出
+export function extractStrengthsAndWeaknesses(stats: GameStats): { strengths: string[]; weaknesses: string[] } {
+  const strengths: string[] = [];
+  const weaknesses: string[] = [];
+
+  const statLabels: Record<keyof GameStats, string> = {
+    money: '老後資金・お金',
+    career: '仕事・キャリア',
+    health: '心身の健康',
+    freedom: '個人の自由度',
+    relationshipCapital: '友人や周囲との関係資本',
+    familyCapital: '家族や親族の強固な絆',
+    nextGeneration: '子ども・次世代との接点',
+    outsideWorkBelonging: '仕事以外の地域や趣味の所属',
+    meaningCapital: '生きがいや意味資本',
+    emergencySupport: 'いざという時の緊急時サポート',
+  };
+
+  // 60以上を強み、40未満を弱みとして抽出
+  (Object.keys(stats) as Array<keyof GameStats>).forEach((key) => {
+    // 孤独リスクに大きく関係する項目を優先
+    if (['relationshipCapital', 'familyCapital', 'nextGeneration', 'outsideWorkBelonging', 'emergencySupport', 'health', 'money', 'meaningCapital'].includes(key)) {
+      if (stats[key] >= 65) {
+        strengths.push(statLabels[key]);
+      } else if (stats[key] < 40) {
+        weaknesses.push(statLabels[key]);
+      }
+    }
+  });
+
+  // もし何もなければ代わりのテキストを追加
+  if (strengths.length === 0) strengths.push('バランスの取れた中庸なステータス');
+  if (weaknesses.length === 0) weaknesses.push('特筆すべき深刻な不足なし');
+
+  return { strengths, weaknesses };
+}
+
+// ゲームの最終結果を算出するメイン関数
+export function processGameResult(stats: GameStats): GameResult {
+  const risk = calculateLonelinessRisk(stats);
+  const { band, label: riskBandLabel } = getRiskBand(risk);
+  const ending = getEnding(stats, risk);
+  const { strengths, weaknesses } = extractStrengthsAndWeaknesses(stats);
+  const scenario = getScenario(ending.id, stats);
+  const recommendations = getRecommendations(stats);
+
+  return {
+    lonelinessRisk: risk,
+    riskBand: band,
+    riskBandLabel,
+    endingName: ending.name,
+    routeName: ending.routeName,
+    endingId: ending.id,
+    scenario,
+    strengths,
+    weaknesses,
+    recommendations,
+  };
+}
