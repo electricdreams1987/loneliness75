@@ -4,16 +4,16 @@ import { getScenario } from './resultText';
 import { getRecommendations } from './recommendations';
 
 export const INITIAL_STATS: GameStats = {
-  money: 50,
-  career: 50,
-  health: 50,
-  freedom: 50,
-  relationshipCapital: 50,
-  familyCapital: 50,
-  nextGeneration: 50,
-  outsideWorkBelonging: 50,
-  meaningCapital: 50,
-  emergencySupport: 50,
+  money: 10,                 // 18歳はお金がほとんどない
+  career: 5,                 // キャリアはこれから築く
+  health: 85,                // 若さによる高い健康値
+  freedom: 75,               // 比較的高い自由度
+  relationshipCapital: 65,   // 活発な友人関係
+  familyCapital: 70,         // 基本的に実家や家族の保護下にある
+  nextGeneration: 5,         // 次世代との接点はほぼない
+  outsideWorkBelonging: 35,  // 学校以外の「大人のサードプレイス」はまだ少ない
+  meaningCapital: 40,        // 生きがいは模索中
+  emergencySupport: 80,      // 親や実家による強力なセーフティネット
 };
 
 // ステータスを0〜100の範囲に収める関数
@@ -53,57 +53,58 @@ export function calculateLonelinessRisk(stats: GameStats): number {
     stats.money * 0.05 +
     stats.meaningCapital * 0.05;
 
-  let risk = 100 - weightedFulfillment;
+  // 基礎孤独リスクを 105 から引く形にして全体的に5点底上げ
+  let risk = 105 - weightedFulfillment;
 
   // 2. 各種補正
   // moneyが高い場合、最大5点だけ孤独リスクを下げる
   if (stats.money >= 60) {
-    const moneyDiscount = stats.emergencySupport < 40 ? 2 : 5;
+    const moneyDiscount = stats.emergencySupport < 40 ? 2 : 4; // 割引効果をマイルドに
     risk -= moneyDiscount;
   }
 
-  // healthが30未満なら孤独リスクを8点上げる
-  if (stats.health < 30) {
-    risk += 8;
-  }
-
-  // relationshipCapital と emergencySupport が両方40未満なら孤独リスクを10点上げる
-  if (stats.relationshipCapital < 40 && stats.emergencySupport < 40) {
+  // healthが40未満なら孤独リスクを10点上げる（閾値を30から40に引き上げ、加算を8から10に）
+  if (stats.health < 40) {
     risk += 10;
   }
 
-  // nextGeneration と familyCapital が両方30未満で、outsideWorkBelongingも40未満なら孤独リスクを8点上げる
-  if (stats.nextGeneration < 30 && stats.familyCapital < 30 && stats.outsideWorkBelonging < 40) {
-    risk += 8;
+  // relationshipCapital と emergencySupport が両方45未満なら孤独リスクを12点上げる（閾値を40から45に、加算を10から12に）
+  if (stats.relationshipCapital < 45 && stats.emergencySupport < 45) {
+    risk += 12;
   }
 
-  // meaningCapital が 70 以上なら孤独リスクを 5 点下げる
-  if (stats.meaningCapital >= 70) {
-    risk -= 5;
+  // nextGeneration と familyCapital が両方35未満で、outsideWorkBelongingも40未満なら孤独リスクを10点上げる（閾値と加算を強化）
+  if (stats.nextGeneration < 35 && stats.familyCapital < 35 && stats.outsideWorkBelonging < 40) {
+    risk += 10;
   }
 
-  // health が 70 以上 かつ outsideWorkBelonging が 70 以上なら孤独リスクを 5 点下げる
-  if (stats.health >= 70 && stats.outsideWorkBelonging >= 70) {
-    risk -= 5;
+  // meaningCapital が 75 以上なら孤独リスクを 4 点下げる（割引効果を5から4に）
+  if (stats.meaningCapital >= 75) {
+    risk -= 4;
+  }
+
+  // health が 75 以上 かつ outsideWorkBelonging が 75 以上なら孤独リスクを 4 点下げる（割引効果を5から4に）
+  if (stats.health >= 75 && stats.outsideWorkBelonging >= 75) {
+    risk -= 4;
   }
 
   // 新たなペナルティ：自由・キャリアが高く関係資本が低い場合リスク上昇
-  if (stats.freedom >= 60 && stats.career >= 60 && (stats.relationshipCapital < 40 || stats.emergencySupport < 40)) {
-    risk += 5;
+  if (stats.freedom >= 60 && stats.career >= 60 && (stats.relationshipCapital < 45 || stats.emergencySupport < 45)) {
+    risk += 6; // 5から6に
   }
   // お金が高く関係資本が低い場合リスク上昇
-  if (stats.money >= 70 && stats.relationshipCapital < 40) {
-    risk += 5;
+  if (stats.money >= 70 && stats.relationshipCapital < 45) {
+    risk += 6; // 5から6に
   }
-// 家族資本・次世代・地域所属が高い場合リスクを下げる
+// 家族資本・次世代・地域所属が高い場合リスクを下げる（割引効果を5から4にマイルド化）
 if (stats.familyCapital >= 60) {
-  risk -= 5;
+  risk -= 4;
 }
 if (stats.nextGeneration >= 60) {
-  risk -= 5;
+  risk -= 4;
 }
 if (stats.outsideWorkBelonging >= 60) {
-  risk -= 5;
+  risk -= 4;
 }
 
 // 最終的な値を0〜100に丸める
