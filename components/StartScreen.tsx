@@ -62,7 +62,7 @@ export default function StartScreen({ onStart }: StartScreenProps) {
         <p className="text-base md:text-lg text-gray-200 leading-relaxed font-medium">
           18歳から75歳までを、数分で生きる。
         </p>
-        <p className="mt-3 text-xs md:text-sm text-gray-400 leading-relaxed">
+        <p className="mt-3 text-xs md:text-sm text-gray-250 leading-relaxed">
           仕事、恋愛、結婚、子ども、友人、親、健康、住まい。<br />
           あなたの選択は、75歳の孤独にどうつながるのか。
         </p>
@@ -83,10 +83,10 @@ export default function StartScreen({ onStart }: StartScreenProps) {
       {/* 注意書き */}
       <motion.div
         variants={itemVariants}
-        className="max-w-sm flex items-start gap-2.5 p-4 rounded-lg bg-gray-950/60 border border-gray-900 text-left"
+        className="max-w-sm flex items-start gap-2.5 p-4 rounded-lg bg-gray-950/60 border border-gray-800 text-left"
       >
         <ShieldAlert className="w-4.5 h-4.5 text-amber-500/80 shrink-0 mt-0.5" />
-        <p className="text-[11px] text-gray-500 leading-relaxed">
+        <p className="text-[11px] text-gray-300 leading-relaxed">
           【注意】このゲームは医療・心理診断ではありません。人生後半の孤独や人間関係を真剣に考えるきっかけを提供するシミュレーションです。結果は将来の運命を断定するものではありません。
         </p>
       </motion.div>

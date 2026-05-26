@@ -78,7 +78,7 @@ export default function ResultCard({ result, onRestart }: ResultCardProps) {
       >
         <div className="absolute inset-0 bg-radial-gradient from-rose-500/5 to-transparent pointer-events-none" />
 
-        <span className="text-[11px] font-bold text-gray-500 tracking-[0.2em] uppercase mb-4">
+        <span className="text-[11px] font-bold text-gray-300 tracking-[0.2em] uppercase mb-4">
           Simulation Result
         </span>
 
@@ -109,7 +109,7 @@ export default function ResultCard({ result, onRestart }: ResultCardProps) {
             />
           </svg>
           <div className="absolute flex flex-col items-center justify-center">
-            <span className="text-[10px] font-bold text-gray-500 tracking-wider">孤独リスク</span>
+            <span className="text-[10px] font-bold text-gray-305 tracking-wider">孤独リスク</span>
             <span className="text-4xl font-black text-white tracking-tight">{animatedRisk}点</span>
             <span className={`text-[11px] font-black tracking-widest px-2 py-0.5 rounded border mt-1.5 uppercase ${colors.text} ${colors.border} ${colors.bg}`}>
               {result.riskBandLabel}
@@ -206,7 +206,7 @@ export default function ResultCard({ result, onRestart }: ResultCardProps) {
                 <p className="text-xs md:text-sm font-bold text-gray-200 leading-relaxed">
                   💡 改善案: {action}
                 </p>
-                <p className="text-[11px] text-gray-500 leading-relaxed font-normal">
+                <p className="text-[11px] text-gray-300 leading-relaxed font-normal">
                   📌 なぜ必要か: {reason}
                 </p>
               </div>
@@ -222,7 +222,7 @@ export default function ResultCard({ result, onRestart }: ResultCardProps) {
         transition={{ duration: 0.5, delay: 0.45 }}
         className="flex flex-col items-center gap-6 mt-4"
       >
-        <p className="text-center text-xs text-gray-500 leading-relaxed max-w-md">
+        <p className="text-center text-xs text-gray-300 leading-relaxed max-w-md">
           ※これは未来の確定ではありません。今この瞬間から関係資本やサードプレイスを作れば、あなたの75歳ルートはいくらでも変えられます。
         </p>
 

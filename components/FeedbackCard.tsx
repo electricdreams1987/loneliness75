@@ -45,7 +45,7 @@ export default function FeedbackCard({ feedbackText, effects, onNext }: Feedback
       </div>
 
       {/* ステータス変化のまとめ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl bg-gray-950 border border-gray-900">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl bg-gray-950 border border-gray-800">
         {/* 上昇したステータス */}
         <div>
           <span className="flex items-center gap-1 text-xs font-bold text-emerald-400 mb-2">
@@ -57,14 +57,14 @@ export default function FeedbackCard({ feedbackText, effects, onNext }: Feedback
               {increases.map(([key, val]) => (
                 <span
                   key={key}
-                  className="text-[11px] font-bold px-2 py-0.5 bg-emerald-950/40 border border-emerald-900/30 text-emerald-300 rounded-md"
+                  className="text-[11px] font-bold px-2 py-0.5 bg-emerald-950/60 border border-emerald-800 text-emerald-300 rounded-md"
                 >
                   {STAT_LABELS[key as keyof GameStats]} +{val}
                 </span>
               ))}
             </div>
           ) : (
-            <span className="text-xs text-gray-600 font-medium">特になし</span>
+            <span className="text-xs text-gray-400 font-medium">特になし</span>
           )}
         </div>
 
@@ -79,14 +79,14 @@ export default function FeedbackCard({ feedbackText, effects, onNext }: Feedback
               {decreases.map(([key, val]) => (
                 <span
                   key={key}
-                  className="text-[11px] font-bold px-2 py-0.5 bg-rose-950/40 border border-rose-900/30 text-rose-300 rounded-md"
+                  className="text-[11px] font-bold px-2 py-0.5 bg-rose-950/60 border border-rose-800 text-rose-300 rounded-md"
                 >
                   {STAT_LABELS[key as keyof GameStats]} {val}
                 </span>
               ))}
             </div>
           ) : (
-            <span className="text-xs text-gray-600 font-medium">特になし</span>
+            <span className="text-xs text-gray-400 font-medium">特になし</span>
           )}
         </div>
       </div>

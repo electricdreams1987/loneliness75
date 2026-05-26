@@ -191,6 +191,13 @@ export const lifeStages: LifeStage[] = [
             description: '休日は休息にあて、募集の写真だけ保存する。',
             feedback: 'あなたは疲れを取ることを選びました。体力は守れますが、仕事以外の人間関係を広げる機会は先送りになります。',
             effects: { health: 3, freedom: 3, outsideWorkBelonging: -3 }
+          },
+          {
+            id: 'choice_2_circle_D',
+            label: 'SNSやオンラインで活動を追う',
+            description: '現地には行かず、サークルのオンライン発信やSNSでの交流から様子を見る。',
+            feedback: 'あなたは現地へ行かずにオンラインから関わり始めました。大きな負担なく、興味のあるサードプレイスの様子や共通の話題を持つ人と繋がることができます。',
+            effects: { outsideWorkBelonging: 3, relationshipCapital: 2, freedom: 1 }
           }
         ]
       }
@@ -305,6 +312,14 @@ export const lifeStages: LifeStage[] = [
             feedback: 'あなたは自分の生活ペースを守りました。自由は保てますが、相手との将来話は少し遠のきます。',
             effects: { freedom: 5, familyCapital: -3, emergencySupport: -1 },
             stateEffects: { hasPartner: true, soloLifestyle: true }
+          },
+          {
+            id: 'choice_3_move_D',
+            label: '近くに住む「近居」を提案する',
+            description: '別々の部屋を借りつつ、同じマンションや徒歩数分の距離に住んで頻繁に行き来する。',
+            feedback: 'あなたは互いの独立した生活空間（自由度）を守りつつ、すぐに助け合える親密な距離感を選びました。程よい家族資本と高い自由度を両立できます。',
+            effects: { familyCapital: 5, emergencySupport: 4, freedom: 2, money: -4 },
+            stateEffects: { hasPartner: true }
           }
         ]
       }
@@ -458,6 +473,14 @@ export const lifeStages: LifeStage[] = [
             feedback: 'あなたは住まいを変えずに関係だけ試しました。負担は小さく、ゆるい接点が一つ増えます。',
             effects: { relationshipCapital: 4, outsideWorkBelonging: 3, money: -1 },
             stateEffects: { communityActive: true }
+          },
+          {
+            id: 'choice_4_house_D',
+            label: 'コワーキングや共有スペースだけ通う',
+            description: '入居はせず、そのハウスが運営する共有スペースやイベントに仕事や作業で定期的に通う。',
+            feedback: 'あなたは住まいというプライベートな空間は守りつつ、他者と交わるサードプレイスを確保しました。安定したプライバシーと、孤立を防ぐネットワークが生まれます。',
+            effects: { outsideWorkBelonging: 6, relationshipCapital: 5, freedom: 1, money: -2 },
+            stateEffects: { communityActive: true }
           }
         ]
       }
@@ -580,6 +603,14 @@ export const lifeStages: LifeStage[] = [
             feedback: 'あなたは子どもを持たない前提を言葉にしました。自由と生活設計は保てますが、次世代との接点は意識的に作る必要があります。',
             effects: { freedom: 6, money: 4, nextGeneration: -6, familyCapital: -2, meaningCapital: -1 },
             stateEffects: { hasChildren: false, soloLifestyle: true }
+          },
+          {
+            id: 'choice_5_children_D',
+            label: '親戚や地域の子ども支援を視野に入れる',
+            description: '自らの子どもを育てる以外に、甥姪への支援や地域の子ども食堂、ボランティアに関わる暮らしを考える。',
+            feedback: 'あなたは血縁での育児にこだわらず、次世代とのつながり（関係資本・次世代接点）を作る道を選択しました。自由を守りながら生きがいを見出せます。',
+            effects: { nextGeneration: 8, meaningCapital: 5, freedom: 3, familyCapital: 2, money: -2 },
+            stateEffects: { familyOriented: true, communityActive: true }
           }
         ]
       },
@@ -612,6 +643,14 @@ export const lifeStages: LifeStage[] = [
             feedback: 'あなたは家庭内で役割を分けました。仕事には集中できますが、子ども周辺の関係からは少し遠ざかります。',
             effects: { career: 4, nextGeneration: -2, familyCapital: -2, relationshipCapital: -2 },
             stateEffects: { careerFocused: true }
+          },
+          {
+            id: 'choice_5_nursery_D',
+            label: '行事ボランティアや役員に立候補する',
+            description: '積極的に園のイベントや役員などを引き受け、自ら関係性の核となる。',
+            feedback: 'あなたは保育コミュニティに深く投資しました。大きな労力（自由度の減少）と引き換えに、地域に一生モノの強固な子育てセーフティネットを築きました。',
+            effects: { nextGeneration: 8, relationshipCapital: 6, outsideWorkBelonging: 5, emergencySupport: 4, freedom: -5 },
+            stateEffects: { familyOriented: true, communityActive: true }
           }
         ]
       }
@@ -733,6 +772,13 @@ export const lifeStages: LifeStage[] = [
             feedback: 'あなたは成果を優先しました。数字は出ますが、チーム内の安心感と自分の健康に影が差します。',
             effects: { career: 7, money: 3, relationshipCapital: -4, health: -4 },
             stateEffects: { careerFocused: true }
+          },
+          {
+            id: 'choice_6_subordinate_D',
+            label: '他部署と連携して抜本的自動化を進める',
+            description: '部下の体力任せで終わらせず、社内の開発部やITツールと連携して業務自動化プロジェクトを立ち上げる。',
+            feedback: 'あなたは一時しのぎの残業調整ではなく、抜本的なDX（構造改革）を起こしました。組織全体のキャリアに貢献しつつ、人間関係と個人の時間が潤滑になります。',
+            effects: { career: 8, relationshipCapital: 4, health: 2, freedom: 2, money: -3 }
           }
         ]
       },
@@ -764,6 +810,14 @@ export const lifeStages: LifeStage[] = [
             description: '外出せず、配信や料理で静かに過ごす。',
             feedback: 'あなたは自分だけの休日を楽しみました。回復にはなりますが、会話の少なさは日常化しやすくなります。',
             effects: { freedom: 5, health: 2, relationshipCapital: -3, outsideWorkBelonging: -2 }
+          },
+          {
+            id: 'choice_6_holiday_D',
+            label: '地域のボランティアや活動を手伝う',
+            description: 'ただの消費的な参加者ではなく、地域の子ども食堂やゴミ拾いにボランティアとして参加する。',
+            feedback: 'あなたは単なる客としてではなく、当事者として地域コミュニティに関わりました。頼られる役割を持つことで、老後に最も重要な「役割という資本」と強固なサードプレイスが生まれます。',
+            effects: { outsideWorkBelonging: 6, relationshipCapital: 5, meaningCapital: 4, money: -1 },
+            stateEffects: { communityActive: true }
           }
         ]
       }

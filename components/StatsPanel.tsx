@@ -68,7 +68,7 @@ export default function StatsPanel({ stats, lastEffects }: StatsPanelProps) {
     const Icon = config.icon;
 
     return (
-      <div key={config.key} className="bg-gray-900/30 border border-gray-800/60 rounded-xl p-3 flex flex-col gap-1.5 shadow-sm">
+      <div key={config.key} className="bg-gray-900/40 border border-gray-800 rounded-xl p-3 flex flex-col gap-1.5 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <div className={`p-1 rounded bg-gray-800 text-xs font-semibold ${config.color.split(' ')[0]}`}>
@@ -96,7 +96,7 @@ export default function StatsPanel({ stats, lastEffects }: StatsPanelProps) {
         </div>
 
         {config.description && (
-          <p className="text-[10px] leading-snug text-gray-500">
+          <p className="text-[10px] leading-snug text-gray-300">
             {config.description}
           </p>
         )}
@@ -105,7 +105,7 @@ export default function StatsPanel({ stats, lastEffects }: StatsPanelProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-gray-950/80 backdrop-blur border border-gray-850 rounded-2xl overflow-hidden shadow-lg shadow-black/30">
+    <div className="w-full max-w-4xl mx-auto bg-gray-950/80 backdrop-blur border border-gray-800 rounded-2xl overflow-hidden shadow-lg shadow-black/30">
       {/* パネルヘッダー */}
       <div
         onClick={() => setIsOpen(!isOpen)}
@@ -118,7 +118,7 @@ export default function StatsPanel({ stats, lastEffects }: StatsPanelProps) {
           </h3>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-[10px] text-gray-500 font-bold mr-1">
+          <span className="text-[10px] text-gray-300 font-bold mr-1">
             {isOpen ? '閉じる' : 'すべて表示'}
           </span>
           {isOpen ? (

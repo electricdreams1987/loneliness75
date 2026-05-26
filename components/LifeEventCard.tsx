@@ -36,7 +36,7 @@ export default function LifeEventCard({ event }: LifeEventCardProps) {
         {event.title}
       </h3>
 
-      <p className="text-sm md:text-base text-gray-400 leading-relaxed font-normal">
+      <p className="text-sm md:text-base text-gray-200 leading-relaxed font-normal">
         {event.description}
       </p>
     </motion.div>
