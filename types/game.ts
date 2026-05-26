@@ -11,12 +11,31 @@ export type GameStats = {
   emergencySupport: number;
 };
 
+export type PlayerFlags = {
+  hasPartner: boolean;
+  married: boolean;
+  hasChildren: boolean;
+  managementTrack: boolean;
+  careerFocused: boolean;
+  communityActive: boolean;
+  localFriendship: boolean;
+  familyOriented: boolean;
+  soloLifestyle: boolean;
+  caregiverExperience: boolean;
+};
+
+export type GameState = {
+  stats: GameStats;
+  flags: PlayerFlags;
+};
+
 export type Choice = {
   id: string;
   label: string;
   description: string;
   feedback: string;
   effects: Partial<GameStats>;
+  stateEffects?: Partial<PlayerFlags>;
 };
 
 export type LifeEvent = {
@@ -24,6 +43,7 @@ export type LifeEvent = {
   stageId: string;
   title: string;
   description: string;
+  conditions?: Partial<PlayerFlags>;
   /** イベント固有の画像パス（将来的に各イベントごとに差し替え可能） */
   image?: string;
   /** イベント画像のaltテキスト */
@@ -48,6 +68,7 @@ export type ChoiceHistory = {
   stageLabel: string;
   choiceLabel: string;
   effectsApplied: Partial<GameStats>;
+  stateEffectsApplied?: Partial<PlayerFlags>;
 };
 
 export type GameResult = {

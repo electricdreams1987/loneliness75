@@ -1,4 +1,4 @@
-import { GameStats, GameResult } from '@/types/game';
+import { GameStats, GameResult, PlayerFlags } from '@/types/game';
 import { getEnding } from './endings';
 import { getScenario } from './resultText';
 import { getRecommendations } from './recommendations';
@@ -16,6 +16,19 @@ export const INITIAL_STATS: GameStats = {
   emergencySupport: 80,      // 親や実家による強力なセーフティネット
 };
 
+export const INITIAL_FLAGS: PlayerFlags = {
+  hasPartner: false,
+  married: false,
+  hasChildren: false,
+  managementTrack: false,
+  careerFocused: false,
+  communityActive: false,
+  localFriendship: false,
+  familyOriented: false,
+  soloLifestyle: false,
+  caregiverExperience: false,
+};
+
 // ステータスを0〜100の範囲に収める関数
 export function clamp(value: number): number {
   return Math.max(0, Math.min(100, value));
@@ -30,6 +43,16 @@ export function applyEffects(currentStats: GameStats, effects: Partial<GameStats
     }
   });
   return newStats;
+}
+
+export function applyStateEffects(
+  currentFlags: PlayerFlags,
+  stateEffects: Partial<PlayerFlags> = {}
+): PlayerFlags {
+  return {
+    ...currentFlags,
+    ...stateEffects,
+  };
 }
 
 // 孤独リスクの計算

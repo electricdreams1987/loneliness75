@@ -9,19 +9,58 @@ import ChoiceButton from '@/components/ChoiceButton';
 import StatsPanel from '@/components/StatsPanel';
 import FeedbackCard from '@/components/FeedbackCard';
 import { lifeStages } from '@/lib/lifeStages';
-import { INITIAL_STATS, applyEffects } from '@/lib/gameLogic';
-import { GameStats, Choice, ChoiceHistory } from '@/types/game';
+import { INITIAL_FLAGS, INITIAL_STATS, applyEffects, applyStateEffects } from '@/lib/gameLogic';
+import { Choice, ChoiceHistory, GameState, LifeEvent, PlayerFlags } from '@/types/game';
 import { AnimatePresence, motion } from 'framer-motion';
+
+function eventMatchesConditions(event: LifeEvent, flags: PlayerFlags): boolean {
+  if (!event.conditions) {
+    return true;
+  }
+
+  return (Object.entries(event.conditions) as Array<[keyof PlayerFlags, boolean]>).every(
+    ([key, expectedValue]) => flags[key] === expectedValue
+  );
+}
+
+function findNextVisibleEventIndex(
+  events: LifeEvent[],
+  startIndex: number,
+  flags: PlayerFlags
+): number {
+  for (let index = startIndex; index < events.length; index++) {
+    if (eventMatchesConditions(events[index], flags)) {
+      return index;
+    }
+  }
+
+  return -1;
+}
+
+function findNextPlayablePosition(startStageIndex: number, flags: PlayerFlags) {
+  for (let stageIndex = startStageIndex; stageIndex < lifeStages.length; stageIndex++) {
+    const eventIndex = findNextVisibleEventIndex(lifeStages[stageIndex].events, 0, flags);
+    if (eventIndex !== -1) {
+      return { stageIndex, eventIndex };
+    }
+  }
+
+  return null;
+}
 
 export default function GamePage() {
   const router = useRouter();
   
   // ゲームステート
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
-  const [stats, setStats] = useState<GameStats>(INITIAL_STATS);
+  const [currentEventIndex, setCurrentEventIndex] = useState(0);
+  const [gameState, setGameState] = useState<GameState>({
+    stats: INITIAL_STATS,
+    flags: INITIAL_FLAGS,
+  });
   const [showFeedback, setShowFeedback] = useState(false);
   const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
-  const [lastEffects, setLastEffects] = useState<Partial<GameStats> | null>(null);
+  const [lastEffects, setLastEffects] = useState<Choice['effects'] | null>(null);
   const [history, setHistory] = useState<ChoiceHistory[]>([]);
 
   useEffect(() => {
@@ -30,17 +69,31 @@ export default function GamePage() {
   }, []);
 
   const currentStage = lifeStages[currentStageIndex];
-  
-  // MVPなので各ステージにイベントは1つ
-  const currentEvent = currentStage?.events[0];
+  const currentEvent = currentStage?.events[currentEventIndex];
+  const visibleEventCount = currentStage
+    ? currentStage.events.filter((event) => eventMatchesConditions(event, gameState.flags)).length
+    : 0;
+  const currentVisibleEventNumber = currentStage
+    ? currentStage.events
+        .slice(0, currentEventIndex + 1)
+        .filter((event) => eventMatchesConditions(event, gameState.flags)).length
+    : 0;
 
   const handleChoiceSelect = (choice: Choice) => {
+    if (!currentStage || !currentEvent) {
+      return;
+    }
+
     setSelectedChoice(choice);
     setLastEffects(choice.effects);
     
     // ステータスの更新
-    const newStats = applyEffects(stats, choice.effects);
-    setStats(newStats);
+    const newStats = applyEffects(gameState.stats, choice.effects);
+    const newFlags = applyStateEffects(gameState.flags, choice.stateEffects);
+    setGameState({
+      stats: newStats,
+      flags: newFlags,
+    });
 
     // 履歴の追加
     const newHistoryItem: ChoiceHistory = {
@@ -49,6 +102,7 @@ export default function GamePage() {
       stageLabel: currentStage.label,
       choiceLabel: choice.label,
       effectsApplied: choice.effects,
+      stateEffectsApplied: choice.stateEffects,
     };
     setHistory([...history, newHistoryItem]);
     
@@ -56,18 +110,38 @@ export default function GamePage() {
   };
 
   const handleNext = () => {
-    const isLastStage = currentStageIndex === lifeStages.length - 1;
-
-    if (isLastStage) {
-      // 最終結果を sessionStorage に保存して結果ページへ遷移
-      sessionStorage.setItem('loneliness_game_stats', JSON.stringify(stats));
+    if (!currentStage) {
+      sessionStorage.setItem('loneliness_game_stats', JSON.stringify(gameState.stats));
       router.push('/result');
-    } else {
-      // 次のステージへ
-      setCurrentStageIndex(currentStageIndex + 1);
+      return;
+    }
+
+    const nextEventIndex = findNextVisibleEventIndex(
+      currentStage.events,
+      currentEventIndex + 1,
+      gameState.flags
+    );
+
+    if (nextEventIndex !== -1) {
+      setCurrentEventIndex(nextEventIndex);
       setShowFeedback(false);
       setSelectedChoice(null);
       setLastEffects(null);
+      return;
+    }
+
+    const nextPosition = findNextPlayablePosition(currentStageIndex + 1, gameState.flags);
+
+    if (nextPosition) {
+      setCurrentStageIndex(nextPosition.stageIndex);
+      setCurrentEventIndex(nextPosition.eventIndex);
+      setShowFeedback(false);
+      setSelectedChoice(null);
+      setLastEffects(null);
+    } else {
+      // 最終結果を sessionStorage に保存して結果ページへ遷移
+      sessionStorage.setItem('loneliness_game_stats', JSON.stringify(gameState.stats));
+      router.push('/result');
     }
   };
 
@@ -81,20 +155,22 @@ export default function GamePage() {
           totalStages={lifeStages.length}
           stageLabel={currentStage.label}
           ageRange={currentStage.ageRange}
+          currentEventNumber={currentVisibleEventNumber}
+          totalEventCount={visibleEventCount}
         />
       )}
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 pt-6 flex flex-col gap-6 md:gap-8">
         
         {/* ステータスパネル (常に現在のステータスを表示) */}
-        <StatsPanel stats={stats} lastEffects={lastEffects} />
+        <StatsPanel stats={gameState.stats} lastEffects={lastEffects} />
 
         <div className="flex-1 flex flex-col gap-6">
           <AnimatePresence mode="wait">
             {!showFeedback ? (
               // 状況説明と選択肢
               <motion.div
-                key={`stage-${currentStageIndex}`}
+                key={`stage-${currentStageIndex}-event-${currentEventIndex}`}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
