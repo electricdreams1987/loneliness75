@@ -8,12 +8,12 @@ export const INITIAL_STATS: GameStats = {
   career: 5,                 // キャリアはこれから築く
   health: 85,                // 若さによる高い健康値
   freedom: 75,               // 比較的高い自由度
-  relationshipCapital: 65,   // 活発な友人関係
+  relationshipCapital: 20,   // 関係資本
   familyCapital: 30,         // パートナー・子ども・親戚など、老後に身近な家族関係はこれから築く
   nextGeneration: 5,         // 次世代との接点はほぼない
   outsideWorkBelonging: 35,  // 学校以外の「大人のサードプレイス」はまだ少ない
   meaningCapital: 40,        // 生きがいは模索中
-  emergencySupport: 80,      // 親や実家による強力なセーフティネット
+  emergencySupport: 30,      // 緊急サポート
 };
 
 export const INITIAL_FLAGS: PlayerFlags = {
