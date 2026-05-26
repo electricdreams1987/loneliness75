@@ -32,8 +32,8 @@ export const lifeStages: LifeStage[] = [
             id: 'choice_1_C',
             label: '地元と家族との深いつながりを残す',
             description: '地元の企業や近くの大学を選び、家族を助けながら地域のなじみ深い関係性を大切にして暮らす。',
-            feedback: 'あなたは地元と家族の強い絆を最優先しました。家族資本と地域での安心感を得ましたが、自分の個人的な自由やキャリアの選択肢は少し制限されました。',
-            effects: { familyCapital: 10, relationshipCapital: 5, meaningCapital: 3, freedom: -4, career: -2 }
+            feedback: 'あなたは地元の人間関係と実家との連絡を残しました。将来の家族関係そのものはこれからですが、困ったときに声をかける土台はできます。',
+            effects: { familyCapital: 2, relationshipCapital: 5, emergencySupport: 4, meaningCapital: 3, freedom: -4, career: -2 }
           },
           {
             id: 'choice_1_D',
@@ -71,6 +71,13 @@ export const lifeStages: LifeStage[] = [
             feedback: 'あなたは目の前の準備に集中しました。新生活の土台は整いますが、卒業後の友人関係は自然に薄くなり始めます。',
             effects: { career: 4, money: 1, relationshipCapital: -4, emergencySupport: -2 },
             stateEffects: { careerFocused: true }
+          },
+          {
+            id: 'choice_1_chat_D',
+            label: '親しい数人だけ誘う',
+            description: '大人数は避け、仲の良い二、三人に個別で声をかける。',
+            feedback: 'あなたは無理のない人数で関係を残しました。広い輪は広がりませんが、続けやすい友人関係が残ります。',
+            effects: { relationshipCapital: 4, emergencySupport: 2, freedom: -1 }
           }
         ]
       }
@@ -106,9 +113,10 @@ export const lifeStages: LifeStage[] = [
           {
             id: 'choice_2_C',
             label: '一途なパートナーシップの構築',
-            description: '将来を共に歩めるような真剣な交際相手との時間や、親しい家族とのだんらんを大切にする。',
-            feedback: 'あなたは特定の親密な関係を育む決意をしました。深い信頼関係と情緒的な安定（家族資本）を得ましたが、外に広がる交友関係や個人の自由は落ち着いたものになりました。',
-            effects: { familyCapital: 10, emergencySupport: 6, meaningCapital: 5, freedom: -4, money: -3 }
+            description: '将来を共に歩めるような真剣な交際相手との時間を大切にし、関係を少しずつ深める。',
+            feedback: 'あなたは特定の親密な関係を育む決意をしました。老後にも身近な支えになりうる家族関係の芽が生まれますが、外に広がる交友関係や個人の自由は落ち着いたものになりました。',
+            effects: { familyCapital: 8, emergencySupport: 5, meaningCapital: 5, freedom: -4, money: -3 },
+            stateEffects: { hasPartner: true }
           },
           {
             id: 'choice_2_D',
@@ -136,8 +144,8 @@ export const lifeStages: LifeStage[] = [
             id: 'choice_2_payday_B',
             label: '家族に小さな贈り物を送る',
             description: '菓子折りや日用品を選び、感謝のメッセージを添える。',
-            feedback: 'あなたは家族とのつながりに最初の給料を使いました。家族資本は温まり、離れていても頼れる感覚が残ります。',
-            effects: { familyCapital: 6, emergencySupport: 3, money: -2, meaningCapital: 2 },
+            feedback: 'あなたは実家との連絡を温めました。老後の家族関係そのものはまだこれからですが、困った時に近況を話せる安心感は残ります。',
+            effects: { familyCapital: 1, emergencySupport: 3, money: -2, meaningCapital: 3 },
             stateEffects: { familyOriented: true }
           },
           {
@@ -146,6 +154,13 @@ export const lifeStages: LifeStage[] = [
             description: '飲み会は断り、家賃や急な出費に備えて貯金する。',
             feedback: 'あなたは足元の安心を優先しました。お金の不安は少し減りますが、誘いに乗らない人という印象も少し残ります。',
             effects: { money: 6, freedom: 2, relationshipCapital: -2 }
+          },
+          {
+            id: 'choice_2_payday_D',
+            label: '先輩に配分を相談する',
+            description: '飲み会、貯金、家族への連絡のバランスを聞いてみる。',
+            feedback: 'あなたは一人で決めず、身近な先輩から現実的な助言をもらいました。派手な変化はありませんが、職場で相談できる相手ができます。',
+            effects: { career: 3, relationshipCapital: 3, money: 1, meaningCapital: 1 }
           }
         ]
       },
@@ -250,6 +265,13 @@ export const lifeStages: LifeStage[] = [
             description: '仕事や費用を理由に欠席し、丁寧なメッセージを送る。',
             feedback: 'あなたは生活負担を抑えながら祝意を伝えました。お金と時間は守れますが、友人の輪に戻る機会は小さくなります。',
             effects: { money: 3, freedom: 3, relationshipCapital: -3 }
+          },
+          {
+            id: 'choice_3_wedding_D',
+            label: '後日少人数で祝う',
+            description: '式は欠席し、近い友人だけで食事の場を提案する。',
+            feedback: 'あなたは大きな場を避けつつ、関係を途切れさせない形を選びました。出費は抑えめで、話しやすい関係が残ります。',
+            effects: { relationshipCapital: 5, emergencySupport: 2, money: -2, freedom: -1 }
           }
         ]
       },
@@ -377,24 +399,32 @@ export const lifeStages: LifeStage[] = [
             id: 'choice_4_parent_A',
             label: '日程を決めて帰省する',
             description: '短くても顔を出し、家の様子を直接見る。',
-            feedback: 'あなたは家族の近況を自分の目で確かめました。自由な予定は減りますが、家族との連絡網は強くなります。',
-            effects: { familyCapital: 6, emergencySupport: 4, freedom: -3, money: -2 },
-            stateEffects: { familyOriented: true }
+            feedback: 'あなたは親の近況を自分の目で確かめました。自由な予定は減りますが、支援が必要になった時の段取りを早めに考えられます。',
+            effects: { familyCapital: 1, emergencySupport: 4, meaningCapital: 2, freedom: -3, money: -2 },
+            stateEffects: { familyOriented: true, caregiverExperience: true }
           },
           {
             id: 'choice_4_parent_B',
             label: 'ビデオ通話で様子を見る',
             description: '帰省は保留し、週末に長めの通話時間を取る。',
             feedback: 'あなたは距離を保ちながら家族の様子を聞きました。直接の支援には届きませんが、連絡の習慣は残ります。',
-            effects: { familyCapital: 3, emergencySupport: 2, freedom: -1 }
+            effects: { emergencySupport: 2, meaningCapital: 1, freedom: -1 }
           },
           {
             id: 'choice_4_parent_C',
             label: '忙しいとだけ返す',
             description: '詳しく聞かず、仕事が落ち着いたら連絡すると送る。',
             feedback: 'あなたは今の予定を優先しました。短期的には楽ですが、家族の小さな変化に気づく機会は減ります。',
-            effects: { career: 2, freedom: 2, familyCapital: -4, emergencySupport: -2 },
+            effects: { career: 2, freedom: 2, emergencySupport: -3, meaningCapital: -1 },
             stateEffects: { careerFocused: true }
+          },
+          {
+            id: 'choice_4_parent_D',
+            label: 'きょうだいに状況を聞く',
+            description: '自分だけで抱えず、近い親族に最近の様子を確認する。',
+            feedback: 'あなたは親のことを親族間で共有しました。直接の負担は抑えつつ、支援の連絡網が少し整います。',
+            effects: { familyCapital: 2, emergencySupport: 3, meaningCapital: 1, freedom: -1 },
+            stateEffects: { caregiverExperience: true }
           }
         ]
       },
@@ -448,11 +478,11 @@ export const lifeStages: LifeStage[] = [
         choices: [
           {
             id: 'choice_5_A',
-            label: '妊活・育児へのコミットや次世代支援',
-            description: '子どもを授かるための活動や、または養育・親族の子どもへの支援に時間と経済資源を大きく割く。',
-            feedback: 'あなたは次世代を育む道へ踏み出しました。あなたの人生に強固な次世代接点と深い生きる意味が生まれましたが、日々の生活は子ども中心となり、自由や個人的なお金、キャリアの進捗は大幅に制限されます。',
+            label: '子どもや親族の支援に関わる',
+            description: '子どもを持つ準備や、親族・地域の子どもの見守りに時間と経済資源を割く。',
+            feedback: 'あなたは次世代を育む道へ踏み出しました。自分の子どもに限らず、若い世代との接点と深い意味が生まれますが、自由や個人的なお金、キャリアの進捗は制限されます。',
             effects: { nextGeneration: 15, familyCapital: 10, meaningCapital: 8, freedom: -10, money: -6, career: -3 },
-            stateEffects: { hasChildren: true, familyOriented: true }
+            stateEffects: { familyOriented: true }
           },
           {
             id: 'choice_5_B',
@@ -508,6 +538,14 @@ export const lifeStages: LifeStage[] = [
             description: '権限、残業、評価条件を聞き、返答期限をもらう。',
             feedback: 'あなたは勢いだけで決めず、条件を確認しました。交渉の余地を残しながら、仕事への関与は少し強まりました。',
             effects: { career: 5, money: 2, freedom: -1, meaningCapital: 2 },
+            stateEffects: { careerFocused: true }
+          },
+          {
+            id: 'choice_5_lead_D',
+            label: '経験者に相談して返事する',
+            description: '管理職の先輩に負荷や家庭への影響を聞いてから決める。',
+            feedback: 'あなたは経験者の話を聞いてから判断することにしました。大きく踏み出す前に、仕事と生活の現実が見えます。',
+            effects: { career: 4, relationshipCapital: 2, meaningCapital: 2, freedom: -1 },
             stateEffects: { careerFocused: true }
           }
         ]
@@ -594,11 +632,11 @@ export const lifeStages: LifeStage[] = [
         choices: [
           {
             id: 'choice_6_A',
-            label: '家族イベントや子ども主体の関係を重視',
-            description: '子どもの学校や地域の親同士のネットワーク、家族旅行などを生活の中心に据える。',
-            feedback: 'あなたは家族と次世代を中心とした強固な共同体を形成しました。家族資本と次世代接点は強まり、孤独感とは無縁ですが、かつての「個人的な友人」との関わりはほぼ無くなりました。',
-            effects: { familyCapital: 10, nextGeneration: 10, emergencySupport: 6, freedom: -6, relationshipCapital: -2 },
-            stateEffects: { familyOriented: true, hasChildren: true }
+            label: '親族や地域の子ども行事に関わる',
+            description: '親族の集まりや地域の子ども行事に顔を出し、次世代との接点を作る。',
+            feedback: 'あなたは親族や地域の次世代と関わる共同体を作りました。次世代接点と身近な支えは強まりますが、かつての個人的な友人との時間は減ります。',
+            effects: { familyCapital: 6, nextGeneration: 8, emergencySupport: 5, freedom: -4, relationshipCapital: -2 },
+            stateEffects: { familyOriented: true }
           },
           {
             id: 'choice_6_B',
@@ -654,6 +692,14 @@ export const lifeStages: LifeStage[] = [
             description: '大人数は避け、仲の良かった友人に個別で近況を聞く。',
             feedback: 'あなたは無理のない形で旧友に声をかけました。派手な再会ではありませんが、続けやすい関係の芽が残ります。',
             effects: { relationshipCapital: 6, emergencySupport: 3, freedom: 1, meaningCapital: 2 },
+            stateEffects: { localFriendship: true }
+          },
+          {
+            id: 'choice_6_reunion_D',
+            label: '幹事に近況だけ送る',
+            description: '参加は保留し、近況と感謝を短く返信する。',
+            feedback: 'あなたは会場には行かず、連絡だけは返しました。関係の再開は小さめですが、完全に途切れることは避けられます。',
+            effects: { relationshipCapital: 3, emergencySupport: 1, freedom: 2 },
             stateEffects: { localFriendship: true }
           }
         ]
@@ -740,8 +786,8 @@ export const lifeStages: LifeStage[] = [
             id: 'choice_7_A',
             label: '親のサポートや親族関係の再構築',
             description: '実家の親の介護準備や親族間の関係調整に時間とエネルギーを割き、実家とのつながりを深める。',
-            feedback: 'あなたは血縁関係の責任を果たし、親族間のネットワークを強化しました。家族資本と緊急時の協力体制は強まりましたが、仕事のキャリアアップスピードは鈍化し、自分の自由な時間は削られました。',
-            effects: { familyCapital: 10, emergencySupport: 10, meaningCapital: 5, freedom: -6, career: -3 },
+            feedback: 'あなたは親の介護準備に向き合いました。家族関係そのものより、支援の経験と緊急時の段取りが増えますが、自分の時間と体力は削られます。',
+            effects: { familyCapital: 2, emergencySupport: 8, meaningCapital: 5, freedom: -5, career: -2, health: -2, money: -2 },
             stateEffects: { caregiverExperience: true, familyOriented: true }
           },
           {
@@ -778,7 +824,7 @@ export const lifeStages: LifeStage[] = [
             label: '週末に実家へ行く',
             description: '家の段差を見て、病院や手すりの話をする。',
             feedback: 'あなたは小さな異変を放置せず動きました。自由な時間は減りますが、介護や支援の入口を早めに作れます。',
-            effects: { familyCapital: 7, emergencySupport: 5, meaningCapital: 3, freedom: -4, career: -1 },
+            effects: { emergencySupport: 5, meaningCapital: 3, freedom: -4, career: -1, health: -1, money: -1 },
             stateEffects: { caregiverExperience: true, familyOriented: true }
           },
           {
@@ -786,7 +832,7 @@ export const lifeStages: LifeStage[] = [
             label: '地域窓口を調べて送る',
             description: '介護相談や病院の情報を集め、親に共有する。',
             feedback: 'あなたは距離を取りつつ実務的に支えました。直接の安心感は控えめですが、必要な情報の道筋はできます。',
-            effects: { familyCapital: 4, emergencySupport: 4, freedom: -1, meaningCapital: 1 },
+            effects: { emergencySupport: 4, freedom: -1, meaningCapital: 2 },
             stateEffects: { caregiverExperience: true }
           },
           {
@@ -794,7 +840,15 @@ export const lifeStages: LifeStage[] = [
             label: '様子を見ることにする',
             description: '本人が大丈夫と言うので、次の電話まで待つ。',
             feedback: 'あなたは大ごとにしない選択をしました。今の生活は守れますが、家族の変化を拾う機会は遅れます。',
-            effects: { freedom: 3, familyCapital: -3, emergencySupport: -3 }
+            effects: { freedom: 3, emergencySupport: -3, meaningCapital: -1 }
+          },
+          {
+            id: 'choice_7_father_D',
+            label: 'きょうだいと分担を相談する',
+            description: '親の話を共有し、誰が何を確認するか決める。',
+            feedback: 'あなたは介護の入口を一人で抱えない形にしました。親族との連絡が増え、緊急時の動き方も少し見えてきます。',
+            effects: { familyCapital: 3, emergencySupport: 4, meaningCapital: 2, freedom: -2 },
+            stateEffects: { caregiverExperience: true }
           }
         ]
       },
@@ -826,6 +880,13 @@ export const lifeStages: LifeStage[] = [
             description: '面談前に、夜の散歩へ誘って本人の話を聞く。',
             feedback: 'あなたは先に本人の言葉を聞こうとしました。解決には時間がかかりますが、親子の信頼は少し戻ります。',
             effects: { nextGeneration: 6, familyCapital: 3, meaningCapital: 2, freedom: -1 }
+          },
+          {
+            id: 'choice_7_school_D',
+            label: '支援窓口も調べる',
+            description: '学校以外の相談先やカウンセラー情報を確認する。',
+            feedback: 'あなたは家庭内だけで抱えず、外部の支援も選択肢に入れました。親子の安心と実務的な備えが増えます。',
+            effects: { nextGeneration: 4, emergencySupport: 3, meaningCapital: 2, money: -1 }
           }
         ]
       },
@@ -963,6 +1024,13 @@ export const lifeStages: LifeStage[] = [
             description: '支援額に上限を決め、足りない分は本人に任せる。',
             feedback: 'あなたは将来の生活を守りました。お金の不安は抑えられますが、子どもとの温度差は生まれます。',
             effects: { money: 5, nextGeneration: -3, familyCapital: -2, freedom: 1 }
+          },
+          {
+            id: 'choice_8_exam_D',
+            label: '奨学金窓口に一緒に行く',
+            description: '本人と制度を調べ、借り方や返し方を確認する。',
+            feedback: 'あなたは応援と現実の間に具体策を置きました。全額を背負わず、子どもと一緒に考える関係が残ります。',
+            effects: { nextGeneration: 5, familyCapital: 3, money: -1, meaningCapital: 2 }
           }
         ]
       },
@@ -1010,6 +1078,7 @@ export const lifeStages: LifeStage[] = [
         stageId: 'stage_9',
         title: '家族構造の変化とライフスタイルの再定義',
         description: '子どもの独立、親の看取り、あるいはパートナーとの関係性の変化など、家庭内の「これまでの当たり前」が変化し、新たな関係構築を求められます。',
+        conditions: { hasChildren: true },
         choices: [
           {
             id: 'choice_9_A',
@@ -1020,10 +1089,10 @@ export const lifeStages: LifeStage[] = [
           },
           {
             id: 'choice_9_B',
-            label: 'パートナー（夫婦）との関係の再構築',
-            description: '共通の趣味を始めたり、感謝の言葉を日常的に伝えるなど、子ども抜きでも豊かに過ごせる夫婦関係を育む。',
-            feedback: 'あなたは一番身近な他人であるパートナーとの絆を修復・強化しました。最重要の家族資本と精神的安定を得ましたが、一人の時間や独自の友人作りは控えめになりました。',
-            effects: { familyCapital: 12, emergencySupport: 10, meaningCapital: 5, freedom: -4, relationshipCapital: -2 }
+            label: '身近な家族との関係を整える',
+            description: '同居家族や近い親族と、今後の暮らし方や役割分担を話す。',
+            feedback: 'あなたは身近な家族との関係を修復・強化しました。老後に頼り合える家族資本と精神的安定を得ましたが、一人の時間や独自の友人作りは控えめになりました。',
+            effects: { familyCapital: 9, emergencySupport: 8, meaningCapital: 5, freedom: -3, relationshipCapital: -2 }
           },
           {
             id: 'choice_9_C',
@@ -1099,6 +1168,13 @@ export const lifeStages: LifeStage[] = [
             feedback: 'あなたは距離のある平和を選びました。気楽さはありますが、緊急時に頼る感覚は少し弱まります。',
             effects: { freedom: 4, familyCapital: -3, emergencySupport: -2 },
             stateEffects: { soloLifestyle: true }
+          },
+          {
+            id: 'choice_9_spouse_D',
+            label: '家計と老後予定を見直す',
+            description: '旅行より先に、介護や住まいの希望を話し合う。',
+            feedback: 'あなたは楽しい予定だけでなく、老後の現実も夫婦で共有しました。少し重い話ですが、身近な支えとしての家族関係は強まります。',
+            effects: { familyCapital: 5, emergencySupport: 4, meaningCapital: 2, freedom: -2 }
           }
         ]
       },
@@ -1165,10 +1241,11 @@ export const lifeStages: LifeStage[] = [
           },
           {
             id: 'choice_10_C',
-            label: '子ども家族や孫、若い世代のサポートに時間を使う',
-            description: '孫の保育園の送り迎えを手伝ったり、地域の青少年育成活動にボランティアとして参加する。',
-            feedback: 'あなたは自身の時間を次世代の成長のために捧げました。圧倒的な感謝と愛され、強い次世代接点と家族資本、深い意味資本を得ましたが、同世代の個人的な友人と遊ぶ時間は減少しています。',
-            effects: { nextGeneration: 12, familyCapital: 8, meaningCapital: 8, emergencySupport: 6, freedom: -4 }
+            label: '地域の若い世代を手伝う',
+            description: '青少年育成や学習支援のボランティアに参加する。',
+            feedback: 'あなたは自身の時間を次世代の成長のために使いました。自分の子どもがいるかどうかに関係なく、若い世代との接点と意味が増えます。',
+            effects: { nextGeneration: 8, outsideWorkBelonging: 4, meaningCapital: 6, emergencySupport: 3, freedom: -3 },
+            stateEffects: { communityActive: true }
           },
           {
             id: 'choice_10_D',
@@ -1272,10 +1349,10 @@ export const lifeStages: LifeStage[] = [
           },
           {
             id: 'choice_11_C',
-            label: '子どもや親族とチャットや通話で頻繁に連絡を取る',
-            description: 'スマートフォンのアプリを使い、離れて暮らす子どもや親族と日常の様子を写真付きで毎日のように共有し合う。',
-            feedback: 'あなたは離れていても繋がれる現代の家族の絆を守りました。家族資本と次世代との強固な信頼関係により、精神的な支えは盤石ですが、足元のリアルな地域生活は少し孤立しています。',
-            effects: { familyCapital: 10, nextGeneration: 10, emergencySupport: 8, outsideWorkBelonging: -3 }
+            label: '親族や近い家族と通話する',
+            description: 'きょうだい、親戚、子どもがいれば子どもとも、日常の様子を定期的に共有する。',
+            feedback: 'あなたは離れていても繋がれる家族的な連絡網を守りました。家族資本と次世代との信頼は強まりますが、足元の地域生活は少し孤立しています。',
+            effects: { familyCapital: 7, nextGeneration: 6, emergencySupport: 6, outsideWorkBelonging: -2 }
           },
           {
             id: 'choice_11_D',
@@ -1363,8 +1440,8 @@ export const lifeStages: LifeStage[] = [
         choices: [
           {
             id: 'choice_12_A',
-            label: '家族や子どもに心を開き、身の振りを相談する',
-            description: 'プライドを捨てて、同居の検討や近くへの引っ越し、今後の支援について子どもや近い家族に深く相談する。',
+            label: '身近な家族に今後を相談する',
+            description: '同居や近くへの引っ越し、今後の支援について、子どもやきょうだい、親戚などに相談する。',
             feedback: 'あなたは最も確かなセーフティネットである家族と対話し、支えを受け入れる体制を整えました。高い緊急時サポートと家族資本が確保され、老後の安心感を得ました。',
             effects: { familyCapital: 10, emergencySupport: 12, nextGeneration: 6, freedom: -6 }
           },
@@ -1419,11 +1496,11 @@ export const lifeStages: LifeStage[] = [
             effects: { emergencySupport: 5, money: -5, freedom: 2, meaningCapital: -1 }
           },
           {
-            id: 'choice_12_contact_D',
-            label: '空欄のまま提出する',
-            description: '今は決められないので、あとで考えることにする。',
-            feedback: 'あなたは決定を先送りしました。書類は進みますが、緊急時の不安はそのまま残ります。',
-            effects: { freedom: 2, emergencySupport: -6, relationshipCapital: -2, familyCapital: -2 }
+            id: 'choice_12_contact_E',
+            label: '親戚に候補を相談する',
+            description: 'きょうだいや甥姪に、連絡先として現実的か確認する。',
+            feedback: 'あなたは親族に具体的な相談をしました。頼る先を曖昧にせず、老後に身近な家族関係を実務につなげます。',
+            effects: { familyCapital: 5, emergencySupport: 5, meaningCapital: 2, freedom: -1 }
           }
         ]
       }

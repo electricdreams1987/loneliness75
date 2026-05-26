@@ -17,7 +17,7 @@ const STAT_LABELS: Record<keyof GameStats, string> = {
   health: '健康',
   freedom: '自由',
   relationshipCapital: '関係資本',
-  familyCapital: '家族資本',
+  familyCapital: '家族資本（身近な家族支え）',
   nextGeneration: '次世代接点',
   outsideWorkBelonging: '仕事外所属',
   meaningCapital: '意味資本',

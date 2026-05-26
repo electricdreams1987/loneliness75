@@ -27,6 +27,7 @@ interface StatsPanelProps {
 type StatConfig = {
   key: keyof GameStats;
   label: string;
+  description?: string;
   icon: React.ElementType;
   color: string;
   bg: string;
@@ -35,7 +36,15 @@ type StatConfig = {
 
 const STATS_CONFIG: StatConfig[] = [
   { key: 'relationshipCapital', label: '関係資本', icon: Users, color: 'text-sky-400 bg-sky-500', bg: 'from-sky-500/20 to-sky-500/5', isMain: true },
-  { key: 'familyCapital', label: '家族資本', icon: Home, color: 'text-rose-400 bg-rose-500', bg: 'from-rose-500/20 to-rose-500/5', isMain: true },
+  {
+    key: 'familyCapital',
+    label: '家族資本',
+    description: 'パートナー、子ども、きょうだい、親戚など、老後に身近な支えとなる家族関係の厚み',
+    icon: Home,
+    color: 'text-rose-400 bg-rose-500',
+    bg: 'from-rose-500/20 to-rose-500/5',
+    isMain: true
+  },
   { key: 'emergencySupport', label: '緊急サポート', icon: ShieldAlert, color: 'text-amber-400 bg-amber-500', bg: 'from-amber-500/20 to-amber-500/5', isMain: true },
   { key: 'health', label: '健康', icon: HeartPulse, color: 'text-emerald-400 bg-emerald-500', bg: 'from-emerald-500/20 to-emerald-500/5', isMain: true },
   { key: 'money', label: 'お金・資産', icon: Coins, color: 'text-yellow-400 bg-yellow-500', bg: 'from-yellow-500/20 to-yellow-500/5', isMain: true },
@@ -85,6 +94,12 @@ export default function StatsPanel({ stats, lastEffects }: StatsPanelProps) {
             style={{ width: `${value}%` }}
           />
         </div>
+
+        {config.description && (
+          <p className="text-[10px] leading-snug text-gray-500">
+            {config.description}
+          </p>
+        )}
       </div>
     );
   };
@@ -99,7 +114,7 @@ export default function StatsPanel({ stats, lastEffects }: StatsPanelProps) {
         <div className="flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-amber-500" />
           <h3 className="text-xs font-bold text-gray-300 tracking-wider">
-            人生ステータス (初期値: 50)
+            人生ステータス
           </h3>
         </div>
         <div className="flex items-center gap-1">

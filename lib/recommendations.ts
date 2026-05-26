@@ -18,10 +18,10 @@ const RECOMMENDATION_DATABASE: Record<string, RecommendationItem> = {
   },
   familyCapital: {
     key: 'familyCapital',
-    title: '家族・親族との対話の質の改善',
-    factor: '家族・親族との心理的な距離',
-    action: '照れやプライドを捨て、日頃の感謝を言葉にすること。もしもの時の支援について、今のうちから家族とオープンに対話しておきましょう。',
-    reason: '血縁関係は最も強固なセーフティネットですが、日頃のコミュニケーションを怠ると、いざという時に最も頼りづらい関係になってしまいます。'
+    title: '身近な家族関係の厚みづくり',
+    factor: '老後に身近な支えとなる家族関係の薄さ',
+    action: 'パートナー、子ども、きょうだい、親戚など、長く支え合える相手と近況や困りごとを話す時間を作りましょう。',
+    reason: 'ここでの家族資本は、親に支えられる若年期の安心ではなく、老後に身近で支え合える家族的な関係の厚みを表します。'
   },
   nextGeneration: {
     key: 'nextGeneration',

@@ -9,7 +9,7 @@ export const INITIAL_STATS: GameStats = {
   health: 85,                // 若さによる高い健康値
   freedom: 75,               // 比較的高い自由度
   relationshipCapital: 65,   // 活発な友人関係
-  familyCapital: 70,         // 基本的に実家や家族の保護下にある
+  familyCapital: 30,         // パートナー・子ども・親戚など、老後に身近な家族関係はこれから築く
   nextGeneration: 5,         // 次世代との接点はほぼない
   outsideWorkBelonging: 35,  // 学校以外の「大人のサードプレイス」はまだ少ない
   meaningCapital: 40,        // 生きがいは模索中
@@ -154,7 +154,7 @@ export function extractStrengthsAndWeaknesses(stats: GameStats): { strengths: st
     health: '心身の健康',
     freedom: '個人の自由度',
     relationshipCapital: '友人や周囲との関係資本',
-    familyCapital: '家族や親族の強固な絆',
+    familyCapital: '老後に身近な支えとなる家族関係',
     nextGeneration: '子ども・次世代との接点',
     outsideWorkBelonging: '仕事以外の地域や趣味の所属',
     meaningCapital: '生きがいや意味資本',
