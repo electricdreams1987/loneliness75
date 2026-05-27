@@ -44,6 +44,18 @@ export const ENDINGS: Record<string, Ending> = {
     routeName: '地域共生ルート',
     description: '仕事以外の地域活動や趣味の場に積極的に顔を出してきたあなたは、近所やサークルの仲間にとって欠かせない存在です。血縁がなくとも、日常の確かな温もりに溢れています。'
   },
+  independent_but_connected_life: {
+    id: 'independent_but_connected_life',
+    name: '静けさを選び、細い糸を残した晩年',
+    routeName: '自由成熟・孤立回避ルート',
+    description: '一人の時間を大切にしながらも、友人、地域、趣味、緊急時の連絡先を細く保ってきた老後です。静けさは孤立ではなく、自分で選び取った生活の余白として機能しています。'
+  },
+  family_present_but_lonely_life: {
+    id: 'family_present_but_lonely_life',
+    name: '家族はいるのに届きにくい夜',
+    routeName: '家族あり・孤立リスク残存ルート',
+    description: '家族とのつながりはありますが、日常の会話や地域との接点、緊急時の具体的な頼り先が薄く、安心が生活の細部まで届ききっていません。'
+  },
   career_isolation: {
     id: 'career_isolation',
     name: '戦士の休息、かつての栄光の残影',
@@ -75,36 +87,50 @@ export const ENDINGS: Record<string, Ending> = {
     return ENDINGS.next_gen_heritage;
   }
 
-  // 3. 関係分散・安定ルート
+  // 3. 一人の自由が外部接点に支えられているルート
+  if (
+    stats.freedom >= 60 &&
+    stats.emergencySupport >= 50 &&
+    (stats.relationshipCapital >= 55 || stats.outsideWorkBelonging >= 55)
+  ) {
+    return ENDINGS.independent_but_connected_life;
+  }
+
+  // 4. 関係分散・安定ルート
   if (stats.relationshipCapital >= 60 && stats.familyCapital >= 50 && stats.outsideWorkBelonging >= 50) {
     return ENDINGS.relation_stable;
   }
 
-  // 4. 自由優先・後半不安定ルート（自由・キャリア高く関係資本低）
+  // 5. 自由優先・後半不安定ルート（自由・キャリア高く関係資本低）
   if (stats.freedom >= 60 && stats.career >= 60 && stats.relationshipCapital < 40 && stats.familyCapital < 40) {
     return ENDINGS.freedom_unstable;
   }
 
-  // 5. お金はあるが誰もいないルート
+  // 6. お金はあるが誰もいないルート
   if (stats.money >= 70 && stats.career >= 60 && stats.relationshipCapital < 40 && stats.emergencySupport < 40) {
     return ENDINGS.money_isolation;
   }
 
-  // 6. 家族依存・死別リスクルート
+  // 7. 家族はあるが、日常の支えが薄いルート
+  if (stats.familyCapital >= 60 && stats.emergencySupport < 45 && stats.outsideWorkBelonging < 45) {
+    return ENDINGS.family_present_but_lonely_life;
+  }
+
+  // 8. 家族依存・死別リスクルート
   if (stats.familyCapital >= 65 && stats.outsideWorkBelonging < 40 && stats.relationshipCapital < 40) {
     return ENDINGS.family_dependence;
   }
 
-  // 7. 地域共生ルート
+  // 9. 地域共生ルート
   if (stats.outsideWorkBelonging >= 65 && stats.relationshipCapital >= 60) {
     return ENDINGS.community_coexistence;
   }
 
-  // 8. キャリア成功・孤独蓄積ルート
+  // 10. キャリア成功・孤独蓄積ルート
   if (stats.career >= 65 && stats.money >= 60 && stats.relationshipCapital < 40) {
     return ENDINGS.career_isolation;
   }
 
-  // 9. デフォルト
+  // 11. デフォルト
   return ENDINGS.default_route;
 }

@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import ResultCard from '@/components/ResultCard';
 import { processGameResult } from '@/lib/gameLogic';
-import { GameStats, GameResult } from '@/types/game';
+import { ChoiceHistory, GameStats, GameResult, PlayerFlags } from '@/types/game';
 import { Home } from 'lucide-react';
 
 export default function ResultPage() {
   const router = useRouter();
   const [result, setResult] = useState<GameResult | null>(null);
+  const [history, setHistory] = useState<ChoiceHistory[]>([]);
+  const [flags, setFlags] = useState<PlayerFlags | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -24,6 +26,17 @@ export default function ResultPage() {
 
         const parsedStats: GameStats = JSON.parse(storedStatsString);
         const calculatedResult = processGameResult(parsedStats);
+        const storedHistoryString = sessionStorage.getItem('loneliness_game_history');
+        const storedFlagsString = sessionStorage.getItem('loneliness_game_flags');
+
+        if (storedHistoryString) {
+          setHistory(JSON.parse(storedHistoryString));
+        }
+
+        if (storedFlagsString) {
+          setFlags(JSON.parse(storedFlagsString));
+        }
+
         setResult(calculatedResult);
       } catch (err) {
         console.error('Failed to parse game stats', err);
@@ -36,6 +49,8 @@ export default function ResultPage() {
 
   const handleRestart = () => {
     sessionStorage.removeItem('loneliness_game_stats');
+    sessionStorage.removeItem('loneliness_game_history');
+    sessionStorage.removeItem('loneliness_game_flags');
     router.push('/');
   };
 
@@ -69,7 +84,7 @@ export default function ResultPage() {
             </button>
           </div>
         ) : (
-          result && <ResultCard result={result} onRestart={handleRestart} />
+          result && <ResultCard result={result} history={history} flags={flags} onRestart={handleRestart} />
         )}
       </main>
 

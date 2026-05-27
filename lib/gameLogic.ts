@@ -27,6 +27,16 @@ export const INITIAL_FLAGS: PlayerFlags = {
   familyOriented: false,
   soloLifestyle: false,
   caregiverExperience: false,
+  keptSchoolFriends: false,
+  joinedHobbyCommunity: false,
+  hasTrustedNeighbor: false,
+  hasEmergencyContact: false,
+  reconnectedOldFriend: false,
+  workIdentityDependent: false,
+  familyPresentButDistant: false,
+  choseSolitudeWithStructure: false,
+  usesSupportServices: false,
+  hasIntergenerationalContact: false,
 };
 
 // ステータスを0〜100の範囲に収める関数
@@ -111,6 +121,20 @@ export function calculateLonelinessRisk(stats: GameStats): number {
     risk -= 4;
   }
 
+  // 一人の自由でも、外部接点と緊急時の支えがあれば「成熟した自由」としてリスクを下げる
+  if (
+    stats.freedom >= 60 &&
+    stats.emergencySupport >= 45 &&
+    (stats.relationshipCapital >= 55 || stats.outsideWorkBelonging >= 55 || stats.nextGeneration >= 55)
+  ) {
+    risk -= 8;
+  }
+
+  // 家族関係があっても、緊急時の支えや仕事外の居場所が薄い場合は孤立リスクを残す
+  if (stats.familyCapital >= 60 && stats.emergencySupport < 40 && stats.outsideWorkBelonging < 40) {
+    risk += 5;
+  }
+
   // 新たなペナルティ：自由・キャリアが高く関係資本が低い場合リスク上昇
   if (stats.freedom >= 60 && stats.career >= 60 && (stats.relationshipCapital < 45 || stats.emergencySupport < 45)) {
     risk += 6; // 5から6に
@@ -190,6 +214,7 @@ export function processGameResult(stats: GameStats): GameResult {
   const recommendations = getRecommendations(stats);
 
   return {
+    stats,
     lonelinessRisk: risk,
     riskBand: band,
     riskBandLabel,

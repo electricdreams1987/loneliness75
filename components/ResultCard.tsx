@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { GameResult } from '@/types/game';
+import { ChoiceHistory, GameResult, PlayerFlags } from '@/types/game';
+import { buildLifeReflections, buildSeventyFiveDay } from '@/lib/resultNarrative';
 import EndingBadge from './EndingBadge';
 import {
   RotateCcw,
@@ -10,15 +11,21 @@ import {
   MinusCircle,
   CheckCircle2,
   Lightbulb,
+  BookOpen,
+  CalendarDays,
 } from 'lucide-react';
 
 interface ResultCardProps {
   result: GameResult;
+  history: ChoiceHistory[];
+  flags: PlayerFlags | null;
   onRestart: () => void;
 }
 
-export default function ResultCard({ result, onRestart }: ResultCardProps) {
+export default function ResultCard({ result, history, flags, onRestart }: ResultCardProps) {
   const [animatedRisk, setAnimatedRisk] = useState(0);
+  const dayScene = buildSeventyFiveDay(result.stats, flags, result.lonelinessRisk);
+  const reflections = buildLifeReflections(history);
 
   // 孤独リスクの点数のカウントアップアニメーション
   useEffect(() => {
@@ -69,18 +76,85 @@ export default function ResultCard({ result, onRestart }: ResultCardProps) {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 md:py-10 flex flex-col gap-8">
-      {/* 1. リスクメーターとエンディング名 */}
+      {/* 1. あなたの生活シナリオ */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full bg-gray-900/60 border border-gray-800/80 rounded-2xl p-6 md:p-8 shadow-xl"
+      >
+        <h3 className="text-base font-bold text-gray-200 tracking-wide border-b border-gray-800 pb-3 mb-4 flex items-center gap-2">
+          <CheckCircle2 className="w-4.5 h-4.5 text-amber-500" />
+          75歳のあなたの生活シナリオ
+        </h3>
+        <p className="text-sm md:text-base text-gray-300 leading-relaxed whitespace-pre-line font-normal">
+          {result.scenario}
+        </p>
+      </motion.div>
+
+      {/* 2. 75歳のある一日 */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="w-full bg-gradient-to-b from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl"
+      >
+        <h3 className="text-base font-bold text-gray-200 tracking-wide border-b border-gray-800 pb-3 mb-4 flex items-center gap-2">
+          <CalendarDays className="w-4.5 h-4.5 text-sky-400" />
+          75歳のある一日
+        </h3>
+        <div className="flex flex-col gap-4">
+          <div>
+            <span className="text-[11px] font-bold text-sky-300 tracking-widest uppercase">
+              {dayScene.title}
+            </span>
+          </div>
+          {dayScene.paragraphs.map((paragraph, index) => (
+            <p key={index} className="text-sm md:text-base text-gray-300 leading-relaxed">
+              {paragraph}
+            </p>
+          ))}
+          <p className="text-xs text-gray-400 leading-relaxed border-t border-gray-800 pt-4">
+            {dayScene.note}
+          </p>
+        </div>
+      </motion.div>
+
+      {/* 3. あなたの人生に残った選択 */}
+      {reflections.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="w-full bg-gray-900/50 border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl"
+        >
+          <h3 className="text-base font-bold text-gray-200 tracking-wide border-b border-gray-800 pb-3 mb-5 flex items-center gap-2">
+            <BookOpen className="w-4.5 h-4.5 text-rose-400" />
+            あなたの人生に残った選択
+          </h3>
+          <ol className="flex flex-col gap-3">
+            {reflections.map((reflection, index) => (
+              <li key={`${reflection.stageLabel}-${index}`} className="rounded-xl border border-gray-800 bg-gray-950/50 p-4">
+                <span className="text-[11px] font-black text-rose-300 tracking-widest">
+                  {reflection.stageLabel}
+                </span>
+                <p className="mt-2 text-sm text-gray-300 leading-relaxed">
+                  {reflection.text}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </motion.div>
+      )}
+
+      {/* 4. リスクメーターとエンディング名 */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
         className="w-full bg-gradient-to-b from-gray-900 to-gray-950 border border-gray-800 rounded-3xl p-6 md:p-8 flex flex-col items-center shadow-2xl relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-radial-gradient from-rose-500/5 to-transparent pointer-events-none" />
-
-        <span className="text-[11px] font-bold text-gray-300 tracking-[0.2em] uppercase mb-4">
-          Simulation Result
-        </span>
 
         {/* 円形メーター */}
         <div className={`relative w-40 h-40 flex items-center justify-center mb-6`}>
@@ -121,27 +195,11 @@ export default function ResultCard({ result, onRestart }: ResultCardProps) {
         <EndingBadge endingName={result.endingName} routeName={result.routeName} />
       </motion.div>
 
-      {/* 2. あなたの生活シナリオ */}
+      {/* 5. 積み上げたもの vs 弱かったもの */}
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.15 }}
-        className="w-full bg-gray-900/60 border border-gray-800/80 rounded-2xl p-6 md:p-8 shadow-xl"
-      >
-        <h3 className="text-base font-bold text-gray-200 tracking-wide border-b border-gray-800 pb-3 mb-4 flex items-center gap-2">
-          <CheckCircle2 className="w-4.5 h-4.5 text-amber-500" />
-          75歳のあなたの生活シナリオ
-        </h3>
-        <p className="text-sm md:text-base text-gray-300 leading-relaxed whitespace-pre-line font-normal">
-          {result.scenario}
-        </p>
-      </motion.div>
-
-      {/* 3. 積み上げたもの vs 弱かったもの */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.25 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
         {/* 強み */}
@@ -177,11 +235,11 @@ export default function ResultCard({ result, onRestart }: ResultCardProps) {
         </div>
       </motion.div>
 
-      {/* 4. 現実で見直すべき改善案 */}
+      {/* 6. 現実で見直すべき改善案 */}
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.35 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
         className="w-full bg-gradient-to-b from-gray-900 to-gray-950 border border-amber-900/30 rounded-2xl p-6 md:p-8 shadow-xl relative overflow-hidden"
       >
         <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-amber-500/5 to-transparent rounded-bl-full pointer-events-none" />
@@ -204,10 +262,10 @@ export default function ResultCard({ result, onRestart }: ResultCardProps) {
                   {factor}
                 </span>
                 <p className="text-xs md:text-sm font-bold text-gray-200 leading-relaxed">
-                  💡 改善案: {action}
+                  改善案: {action}
                 </p>
                 <p className="text-[11px] text-gray-300 leading-relaxed font-normal">
-                  📌 なぜ必要か: {reason}
+                  なぜ必要か: {reason}
                 </p>
               </div>
             );
@@ -219,7 +277,7 @@ export default function ResultCard({ result, onRestart }: ResultCardProps) {
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.45 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
         className="flex flex-col items-center gap-6 mt-4"
       >
         <p className="text-center text-xs text-gray-300 leading-relaxed max-w-md">

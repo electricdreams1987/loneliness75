@@ -55,7 +55,8 @@ export const lifeStages: LifeStage[] = [
             label: '予定を合わせて参加する',
             description: '荷造りの合間に日程を調整し、最後の集まりに行く。',
             feedback: 'あなたは古い関係に区切りをつけず、細く続く連絡先を残しました。進路準備の時間は少し減りますが、頼れる友人の芽が残ります。',
-            effects: { relationshipCapital: 6, emergencySupport: 3, freedom: -1, career: -1 }
+            effects: { relationshipCapital: 6, emergencySupport: 3, freedom: -1, career: -1 },
+            stateEffects: { keptSchoolFriends: true }
           },
           {
             id: 'choice_1_chat_B',
@@ -77,7 +78,8 @@ export const lifeStages: LifeStage[] = [
             label: '親しい数人だけ誘う',
             description: '大人数は避け、仲の良い二、三人に個別で声をかける。',
             feedback: 'あなたは無理のない人数で関係を残しました。広い輪は広がりませんが、続けやすい友人関係が残ります。',
-            effects: { relationshipCapital: 4, emergencySupport: 2, freedom: -1 }
+            effects: { relationshipCapital: 4, emergencySupport: 2, freedom: -1 },
+            stateEffects: { keptSchoolFriends: true }
           }
         ]
       }
@@ -108,7 +110,8 @@ export const lifeStages: LifeStage[] = [
             label: '仕事以外の交友関係・サークルを広げる',
             description: '社外のコミュニティや趣味の集まりに積極的に参加し、多様なバックグラウンドを持つ友人を増やす。',
             feedback: 'あなたは社会に出てからも多様なコミュニティとつながりを作りました。視野が広がり関係資本が増えましたが、お金の出費が重なっています。',
-            effects: { relationshipCapital: 10, outsideWorkBelonging: 8, freedom: 3, money: -5, career: -2 }
+            effects: { relationshipCapital: 10, outsideWorkBelonging: 8, freedom: 3, money: -5, career: -2 },
+            stateEffects: { joinedHobbyCommunity: true, communityActive: true }
           },
           {
             id: 'choice_2_C',
@@ -123,7 +126,8 @@ export const lifeStages: LifeStage[] = [
             label: '自己探求と一人の趣味に没頭',
             description: '自分の興味のあるコアな趣味や、オンラインで完結する創作活動に一人の時間を捧げる。',
             feedback: 'あなたは自分だけの深い精神世界を守ることに集中しました。自由度は最大化され、高い個人の満足感を得ましたが、現実のリアルな人間関係は希薄化しつつあります。',
-            effects: { freedom: 10, meaningCapital: 6, relationshipCapital: -4, familyCapital: -3, emergencySupport: -3 }
+            effects: { freedom: 10, meaningCapital: 6, relationshipCapital: -4, familyCapital: -3, emergencySupport: -3 },
+            stateEffects: { soloLifestyle: true }
           }
         ]
       },
@@ -176,7 +180,7 @@ export const lifeStages: LifeStage[] = [
             description: '予定を空け、初心者として一度だけ参加してみる。',
             feedback: 'あなたは仕事や学校以外の居場所を試しました。続くかはまだ分かりませんが、生活に新しい顔なじみが生まれます。',
             effects: { outsideWorkBelonging: 6, relationshipCapital: 4, money: -2, freedom: -1 },
-            stateEffects: { communityActive: true }
+            stateEffects: { communityActive: true, joinedHobbyCommunity: true }
           },
           {
             id: 'choice_2_circle_B',
@@ -197,7 +201,8 @@ export const lifeStages: LifeStage[] = [
             label: 'SNSやオンラインで活動を追う',
             description: '現地には行かず、サークルのオンライン発信やSNSでの交流から様子を見る。',
             feedback: 'あなたは現地へ行かずにオンラインから関わり始めました。大きな負担なく、興味のあるサードプレイスの様子や共通の話題を持つ人と繋がることができます。',
-            effects: { outsideWorkBelonging: 3, relationshipCapital: 2, freedom: 1 }
+            effects: { outsideWorkBelonging: 3, relationshipCapital: 2, freedom: 1 },
+            stateEffects: { joinedHobbyCommunity: true }
           }
         ]
       }
@@ -352,7 +357,7 @@ export const lifeStages: LifeStage[] = [
             description: '人生で一番動けるこの時期に、スタートアップへの参画や独立・起業、あるいは海外赴任に挑戦する。',
             feedback: 'あなたはキャリアの最大化を選択しました。自身の市場価値とキャリア、将来のお金のチャンスは広がりましたが、プライベートの人間関係は極めて希薄化しています。',
             effects: { career: 15, money: 8, freedom: 3, relationshipCapital: -5, familyCapital: -5, health: -4 },
-            stateEffects: { careerFocused: true }
+            stateEffects: { careerFocused: true, workIdentityDependent: true }
           },
           {
             id: 'choice_4_C',
@@ -715,7 +720,7 @@ export const lifeStages: LifeStage[] = [
             description: '予定を空けて会場へ行き、近況を自分から話す。',
             feedback: 'あなたは昔の関係にもう一度顔を出しました。気まずさは少しありましたが、途切れていた地元のつながりが再び動き始めます。',
             effects: { relationshipCapital: 8, emergencySupport: 4, meaningCapital: 2, freedom: -2, money: -2 },
-            stateEffects: { localFriendship: true }
+            stateEffects: { localFriendship: true, reconnectedOldFriend: true }
           },
           {
             id: 'choice_6_reunion_B',
@@ -731,7 +736,7 @@ export const lifeStages: LifeStage[] = [
             description: '大人数は避け、仲の良かった友人に個別で近況を聞く。',
             feedback: 'あなたは無理のない形で旧友に声をかけました。派手な再会ではありませんが、続けやすい関係の芽が残ります。',
             effects: { relationshipCapital: 6, emergencySupport: 3, freedom: 1, meaningCapital: 2 },
-            stateEffects: { localFriendship: true }
+            stateEffects: { localFriendship: true, reconnectedOldFriend: true }
           },
           {
             id: 'choice_6_reunion_D',
@@ -739,7 +744,7 @@ export const lifeStages: LifeStage[] = [
             description: '参加は保留し、近況と感謝を短く返信する。',
             feedback: 'あなたは会場には行かず、連絡だけは返しました。関係の再開は小さめですが、完全に途切れることは避けられます。',
             effects: { relationshipCapital: 3, emergencySupport: 1, freedom: 2 },
-            stateEffects: { localFriendship: true }
+            stateEffects: { localFriendship: true, reconnectedOldFriend: true }
           }
         ]
       },
@@ -1100,14 +1105,16 @@ export const lifeStages: LifeStage[] = [
             label: '月2回なら引き受ける',
             description: '無理のない回数で、場の維持に関わる。',
             feedback: 'あなたは居場所を使う側から支える側へ少し進みました。責任は増えますが、地域での信頼も増えます。',
-            effects: { outsideWorkBelonging: 6, relationshipCapital: 4, meaningCapital: 3, freedom: -2 }
+            effects: { outsideWorkBelonging: 6, relationshipCapital: 4, meaningCapital: 3, freedom: -2 },
+            stateEffects: { hasTrustedNeighbor: true, communityActive: true }
           },
           {
             id: 'choice_8_key_B',
             label: '代わりに広報を手伝う',
             description: '鍵当番は難しいが、告知文や写真整理を手伝う。',
             feedback: 'あなたはできる形で関わりました。現場の接点は少なめですが、役割を持つことで所属感は続きます。',
-            effects: { outsideWorkBelonging: 4, meaningCapital: 3, freedom: -1 }
+            effects: { outsideWorkBelonging: 4, meaningCapital: 3, freedom: -1 },
+            stateEffects: { communityActive: true }
           },
           {
             id: 'choice_8_key_C',
@@ -1284,14 +1291,16 @@ export const lifeStages: LifeStage[] = [
             label: '再雇用や関連会社で仕事を第一に継続する',
             description: 'これまで培ったスキルを使い、週5日フルタイムで働き続けることで、社会との接点をキープする。',
             feedback: 'あなたは「仕事人」としてのアイデンティティと一定の収入を維持しました。しかし、会社内での立場は変わり、かつてのプライドとの葛藤がありつつも、仕事以外の人間関係を作る機会は先送りされました。',
-            effects: { career: 8, money: 8, freedom: -6, relationshipCapital: -3, health: -2 }
+            effects: { career: 8, money: 8, freedom: -6, relationshipCapital: -3, health: -2 },
+            stateEffects: { workIdentityDependent: true }
           },
           {
             id: 'choice_10_B',
             label: '趣味の教室やサークルに週3で通い詰める',
             description: 'ゴルフ、陶芸、囲碁・将棋、歴史散歩など、仕事と関係のない趣味のコミュニティに通い、仲間を作る。',
             feedback: 'あなたは新たなライフスタイルを積極的に構築しました。仕事と関係のない共通の話題で笑い合える仲間（仕事以外の所属）を多数得て、毎日にハリが出ましたが、それなりの経済的出費があります。',
-            effects: { outsideWorkBelonging: 12, relationshipCapital: 8, meaningCapital: 6, money: -5, freedom: 2 }
+            effects: { outsideWorkBelonging: 12, relationshipCapital: 8, meaningCapital: 6, money: -5, freedom: 2 },
+            stateEffects: { joinedHobbyCommunity: true, choseSolitudeWithStructure: true, communityActive: true }
           },
           {
             id: 'choice_10_C',
@@ -1299,7 +1308,7 @@ export const lifeStages: LifeStage[] = [
             description: '青少年育成や学習支援のボランティアに参加する。',
             feedback: 'あなたは自身の時間を次世代の成長のために使いました。自分の子どもがいるかどうかに関係なく、若い世代との接点と意味が増えます。',
             effects: { nextGeneration: 8, outsideWorkBelonging: 4, meaningCapital: 6, emergencySupport: 3, freedom: -3 },
-            stateEffects: { communityActive: true }
+            stateEffects: { communityActive: true, hasIntergenerationalContact: true }
           },
           {
             id: 'choice_10_D',
@@ -1330,14 +1339,15 @@ export const lifeStages: LifeStage[] = [
             description: '仕事で積み上げた成果と再雇用の意欲を伝える。',
             feedback: 'あなたは仕事人としての継続を示しました。キャリアの延長線は見えますが、私的な関係は増えにくいままです。',
             effects: { career: 5, money: 2, relationshipCapital: -1 },
-            stateEffects: { careerFocused: true }
+            stateEffects: { careerFocused: true, workIdentityDependent: true }
           },
           {
             id: 'choice_10_speech_C',
             label: '連絡先を交換して回る',
             description: '挨拶の後、数人と個別に連絡先を交換する。',
             feedback: 'あなたは職場の関係を退職後にも持ち出しました。全員とは続きませんが、孤立を防ぐ細い線が残ります。',
-            effects: { relationshipCapital: 5, emergencySupport: 2, freedom: -1 }
+            effects: { relationshipCapital: 5, emergencySupport: 2, freedom: -1 },
+            stateEffects: { reconnectedOldFriend: true }
           }
         ]
       },
@@ -1352,7 +1362,8 @@ export const lifeStages: LifeStage[] = [
             label: '朝の散歩コースを作る',
             description: '毎朝同じ時間に歩き、店や公園に寄る。',
             feedback: 'あなたは自由時間に小さな型を作りました。健康と日常の顔なじみが少しずつ育ちます。',
-            effects: { health: 6, outsideWorkBelonging: 3, relationshipCapital: 2, freedom: -1 }
+            effects: { health: 6, outsideWorkBelonging: 3, relationshipCapital: 2, freedom: -1 },
+            stateEffects: { choseSolitudeWithStructure: true }
           },
           {
             id: 'choice_10_morning_B',
@@ -1360,7 +1371,7 @@ export const lifeStages: LifeStage[] = [
             description: '講座やサークルを予約し、予定表に固定する。',
             feedback: 'あなたは白紙の時間に外との接点を入れました。自由は少し減りますが、生活のリズムができます。',
             effects: { outsideWorkBelonging: 6, meaningCapital: 3, money: -2, freedom: -2 },
-            stateEffects: { communityActive: true }
+            stateEffects: { communityActive: true, choseSolitudeWithStructure: true }
           },
           {
             id: 'choice_10_morning_C',
@@ -1369,6 +1380,45 @@ export const lifeStages: LifeStage[] = [
             feedback: 'あなたは休息を選びました。回復にはなりますが、会話の少ない日が続く入口にもなります。',
             effects: { freedom: 5, health: 1, relationshipCapital: -3, outsideWorkBelonging: -3 },
             stateEffects: { soloLifestyle: true }
+          }
+        ]
+      },
+      {
+        id: 'event_10_no_business_card_intro',
+        stageId: 'stage_10',
+        title: '名刺のない自己紹介に詰まる',
+        description: '退職後に参加した地域講座で、自己紹介の順番が回ってきました。会社名も役職もない自分を、どう説明すればいいのか一瞬言葉に詰まります。',
+        choices: [
+          {
+            id: 'choice_10_intro_A',
+            label: '元の肩書を中心に話す',
+            description: '以前の会社名や役職、仕事での実績を短く伝える。',
+            feedback: 'あなたは慣れた肩書で自分を説明しました。場はまとまりますが、今の生活で続く関係には少しつながりにくいままです。',
+            effects: { career: 4, meaningCapital: -1, relationshipCapital: -1 },
+            stateEffects: { workIdentityDependent: true }
+          },
+          {
+            id: 'choice_10_intro_B',
+            label: '最近始めた趣味を話す',
+            description: 'うまくなくても、今触っている趣味や日課を話す。',
+            feedback: 'あなたは現在の自分を言葉にしました。肩書ではなく、これから共有できる話題が生まれます。',
+            effects: { outsideWorkBelonging: 4, relationshipCapital: 3, meaningCapital: 3 },
+            stateEffects: { joinedHobbyCommunity: true, choseSolitudeWithStructure: true }
+          },
+          {
+            id: 'choice_10_intro_C',
+            label: '聞き役に回って話を拾う',
+            description: '自分の説明は短くし、相手の参加理由を聞いてみる。',
+            feedback: 'あなたは聞くことで場に入りました。目立ちはしませんが、相手から話しかけられやすい余白が生まれます。',
+            effects: { relationshipCapital: 4, outsideWorkBelonging: 2, freedom: -1 }
+          },
+          {
+            id: 'choice_10_intro_D',
+            label: '新しい活動名を作る',
+            description: '散歩記録係、近所の写真係など、自分なりの役割を名乗る。',
+            feedback: 'あなたは肩書の代わりに新しい役割を作りました。小さな冗談のようで、仕事以外の自分を育てる入口になります。',
+            effects: { meaningCapital: 5, outsideWorkBelonging: 4, relationshipCapital: 2 },
+            stateEffects: { choseSolitudeWithStructure: true, communityActive: true }
           }
         ]
       }
@@ -1392,14 +1442,16 @@ export const lifeStages: LifeStage[] = [
             label: '行きつけのカフェや地域コミュニティに毎日顔を出す',
             description: '朝の散歩がてら地元の個人商店や喫茶店、またはコワーキングやサロンに通い、顔なじみの店員や隣人と挨拶を交わす。',
             feedback: 'あなたは日常のささやかな挨拶を交わす関係（弱い紐帯）のセーフティネットを作りました。日常的な対話が確保され、地域社会に包摂されている安心感を得ています。',
-            effects: { relationshipCapital: 10, outsideWorkBelonging: 8, health: 4, money: -3 }
+            effects: { relationshipCapital: 10, outsideWorkBelonging: 8, health: 4, money: -3 },
+            stateEffects: { hasTrustedNeighbor: true, communityActive: true }
           },
           {
             id: 'choice_11_B',
             label: '友人と定期的に電話や対面で話す日を「システム化」する',
             description: '週に1回は昔の同僚や学生時代の友人に必ず連絡する、あるいは月1回の飲み会を主催し続ける。',
             feedback: 'あなたは自ら能動的につながりをメンテナンスし続けました。信頼できる友人関係と緊急時サポートが最高水準で維持され、孤独の危機を回避しています。',
-            effects: { relationshipCapital: 12, emergencySupport: 8, meaningCapital: 5, money: -4, freedom: -2 }
+            effects: { relationshipCapital: 12, emergencySupport: 8, meaningCapital: 5, money: -4, freedom: -2 },
+            stateEffects: { reconnectedOldFriend: true, hasEmergencyContact: true }
           },
           {
             id: 'choice_11_C',
@@ -1418,6 +1470,50 @@ export const lifeStages: LifeStage[] = [
         ]
       },
       {
+        id: 'event_11_old_friend_message',
+        stageId: 'stage_11',
+        title: '久しぶりの友人から短い連絡が来る',
+        description: '夕方、昔の友人から「元気？」と短いメッセージが届きました。忙しいわけではありませんが、何を返せばいいのか少し迷います。',
+        anyConditions: [
+          { keptSchoolFriends: true },
+          { reconnectedOldFriend: true },
+          { localFriendship: true }
+        ],
+        choices: [
+          {
+            id: 'choice_11_friend_A',
+            label: 'すぐ短く返信する',
+            description: '元気だよ、と近況を一つ添えて返す。',
+            feedback: 'あなたは関係の糸をその場で結び直しました。長いやり取りでなくても、返事をする習慣が老後の支えになります。',
+            effects: { relationshipCapital: 6, emergencySupport: 3, meaningCapital: 2 },
+            stateEffects: { reconnectedOldFriend: true }
+          },
+          {
+            id: 'choice_11_friend_B',
+            label: '短い電話だけしてみる',
+            description: '文章に迷うので、五分だけ声を聞いてみる。',
+            feedback: 'あなたは少し勇気を出して声をつなぎました。会う約束まではなくても、互いの存在が現実味を帯びます。',
+            effects: { relationshipCapital: 7, emergencySupport: 4, freedom: -1 },
+            stateEffects: { reconnectedOldFriend: true, hasEmergencyContact: true }
+          },
+          {
+            id: 'choice_11_friend_C',
+            label: '落ち着いたら返す',
+            description: 'あとで丁寧に返そうと思い、いったん通知を閉じる。',
+            feedback: 'あなたは丁寧に返したい気持ちを持ちましたが、関係は少し先送りになります。小さな返信ほど、老後の糸を切らない力があります。',
+            effects: { freedom: 2, relationshipCapital: -2, emergencySupport: -1 }
+          },
+          {
+            id: 'choice_11_friend_D',
+            label: '会うのが怖くて避ける',
+            description: '近況を比べられそうで、そのまま未読にする。',
+            feedback: 'あなたは再会の不安を避けました。静けさは保てますが、過去に残した細い関係がまた遠のきます。',
+            effects: { freedom: 3, relationshipCapital: -5, emergencySupport: -3 },
+            stateEffects: { reconnectedOldFriend: false }
+          }
+        ]
+      },
+      {
         id: 'event_11_clinic_neighbor',
         stageId: 'stage_11',
         title: '病院帰りに近所の人と会う',
@@ -1429,7 +1525,8 @@ export const lifeStages: LifeStage[] = [
             label: '少し立ち話をする',
             description: '通院帰りだと軽く話し、相手の近況も聞く。',
             feedback: 'あなたは日常の小さな接点を受け取りました。深い関係ではなくても、異変に気づく人が増えます。',
-            effects: { relationshipCapital: 4, emergencySupport: 4, health: 1, freedom: -1 }
+            effects: { relationshipCapital: 4, emergencySupport: 4, health: 1, freedom: -1 },
+            stateEffects: { hasTrustedNeighbor: true }
           },
           {
             id: 'choice_11_neighbor_B',
@@ -1466,7 +1563,8 @@ export const lifeStages: LifeStage[] = [
             label: '副担当を探して受ける',
             description: '一人で抱えず、近所の人と分担して進める。',
             feedback: 'あなたは助けを借りる形で役割を受けました。頼り頼られる関係が自然に増えます。',
-            effects: { outsideWorkBelonging: 4, relationshipCapital: 5, emergencySupport: 4, freedom: -1 }
+            effects: { outsideWorkBelonging: 4, relationshipCapital: 5, emergencySupport: 4, freedom: -1 },
+            stateEffects: { hasTrustedNeighbor: true }
           },
           {
             id: 'choice_11_cleaning_C',
@@ -1497,21 +1595,24 @@ export const lifeStages: LifeStage[] = [
             label: '身近な家族に今後を相談する',
             description: '同居や近くへの引っ越し、今後の支援について、子どもやきょうだい、親戚などに相談する。',
             feedback: 'あなたは最も確かなセーフティネットである家族と対話し、支えを受け入れる体制を整えました。高い緊急時サポートと家族資本が確保され、老後の安心感を得ました。',
-            effects: { familyCapital: 10, emergencySupport: 12, nextGeneration: 6, freedom: -6 }
+            effects: { familyCapital: 10, emergencySupport: 12, nextGeneration: 6, freedom: -6 },
+            stateEffects: { hasEmergencyContact: true }
           },
           {
             id: 'choice_12_B',
             label: '友人や信頼できる地域の人々と助け合う約束をする',
             description: '互いの体調を確認し合うペアを作ったり、地域の福祉ネットワーク、または信頼できる隣人と合鍵を預け合うなどの関係を築く。',
             feedback: 'あなたは血の繋がらない人々との相互扶助の仕組みを自分の手で作り上げました。地域で自立しつつも守られる温かな関係資本と高い緊急時サポートを獲得しました。',
-            effects: { relationshipCapital: 10, emergencySupport: 10, outsideWorkBelonging: 6, freedom: -2 }
+            effects: { relationshipCapital: 10, emergencySupport: 10, outsideWorkBelonging: 6, freedom: -2 },
+            stateEffects: { hasEmergencyContact: true, hasTrustedNeighbor: true }
           },
           {
             id: 'choice_12_C',
             label: 'お金で解決できる民間の介護・生活支援サービスを契約する',
             description: '自分のプライドや他人への迷惑を考え、資産を切り崩して、見守りサービスや身元保証サービス等の専門契約を結ぶ。',
             feedback: 'あなたはお金の力で尊厳と安心を買いました。他者へ気兼ねすることなく、ドライで確実な緊急時サポートを確立しましたが、そこに温かな感情の交流や人間味のある関係はありません。',
-            effects: { emergencySupport: 10, money: -15, freedom: 3, meaningCapital: -2 }
+            effects: { emergencySupport: 10, money: -15, freedom: 3, meaningCapital: -2 },
+            stateEffects: { hasEmergencyContact: true, usesSupportServices: true }
           },
           {
             id: 'choice_12_D',
@@ -1533,28 +1634,32 @@ export const lifeStages: LifeStage[] = [
             label: '家族に事前確認する',
             description: '名前を書く前に電話し、連絡先にしてよいか聞く。',
             feedback: 'あなたは頼ることを言葉にしました。少し照れくさいですが、いざという時の連絡は確実になります。',
-            effects: { familyCapital: 6, emergencySupport: 6, freedom: -1 }
+            effects: { familyCapital: 6, emergencySupport: 6, freedom: -1 },
+            stateEffects: { hasEmergencyContact: true }
           },
           {
             id: 'choice_12_contact_B',
             label: '友人や近所の人に頼む',
             description: '最近会っている相手に、緊急時の連絡先を相談する。',
             feedback: 'あなたは血縁以外の支えを現実の仕組みにしました。頼る勇気が、老後の安全網になります。',
-            effects: { relationshipCapital: 6, outsideWorkBelonging: 3, emergencySupport: 6, freedom: -1 }
+            effects: { relationshipCapital: 6, outsideWorkBelonging: 3, emergencySupport: 6, freedom: -1 },
+            stateEffects: { hasEmergencyContact: true, hasTrustedNeighbor: true }
           },
           {
             id: 'choice_12_contact_C',
             label: '有料サービスを調べる',
             description: '迷惑をかけない方法として、身元保証や見守りを探す。',
             feedback: 'あなたは制度で支えを補う道を探しました。お金は必要ですが、頼れる先を空欄にしない選択です。',
-            effects: { emergencySupport: 5, money: -5, freedom: 2, meaningCapital: -1 }
+            effects: { emergencySupport: 5, money: -5, freedom: 2, meaningCapital: -1 },
+            stateEffects: { hasEmergencyContact: true, usesSupportServices: true }
           },
           {
             id: 'choice_12_contact_E',
             label: '親戚に候補を相談する',
             description: 'きょうだいや甥姪に、連絡先として現実的か確認する。',
             feedback: 'あなたは親族に具体的な相談をしました。頼る先を曖昧にせず、老後に身近な家族関係を実務につなげます。',
-            effects: { familyCapital: 5, emergencySupport: 5, meaningCapital: 2, freedom: -1 }
+            effects: { familyCapital: 5, emergencySupport: 5, meaningCapital: 2, freedom: -1 },
+            stateEffects: { hasEmergencyContact: true }
           }
         ]
       }

@@ -14,12 +14,24 @@ import { Choice, ChoiceHistory, GameState, LifeEvent, PlayerFlags } from '@/type
 import { AnimatePresence, motion } from 'framer-motion';
 
 function eventMatchesConditions(event: LifeEvent, flags: PlayerFlags): boolean {
-  if (!event.conditions) {
+  if (event.conditions) {
+    const matchesAll = (Object.entries(event.conditions) as Array<[keyof PlayerFlags, boolean]>).every(
+      ([key, expectedValue]) => flags[key] === expectedValue
+    );
+
+    if (!matchesAll) {
+      return false;
+    }
+  }
+
+  if (!event.anyConditions || event.anyConditions.length === 0) {
     return true;
   }
 
-  return (Object.entries(event.conditions) as Array<[keyof PlayerFlags, boolean]>).every(
-    ([key, expectedValue]) => flags[key] === expectedValue
+  return event.anyConditions.some((conditions) =>
+    (Object.entries(conditions) as Array<[keyof PlayerFlags, boolean]>).every(
+      ([key, expectedValue]) => flags[key] === expectedValue
+    )
   );
 }
 
@@ -66,6 +78,8 @@ export default function GamePage() {
   useEffect(() => {
     // ゲーム開始時にセッションストレージをクリア
     sessionStorage.removeItem('loneliness_game_stats');
+    sessionStorage.removeItem('loneliness_game_history');
+    sessionStorage.removeItem('loneliness_game_flags');
   }, []);
 
   const currentStage = lifeStages[currentStageIndex];
@@ -98,20 +112,29 @@ export default function GamePage() {
     // 履歴の追加
     const newHistoryItem: ChoiceHistory = {
       eventId: currentEvent.id,
+      eventTitle: currentEvent.title,
       choiceId: choice.id,
       stageLabel: currentStage.label,
       choiceLabel: choice.label,
+      choiceDescription: choice.description,
       effectsApplied: choice.effects,
       stateEffectsApplied: choice.stateEffects,
+      meaning: choice.feedback,
     };
     setHistory([...history, newHistoryItem]);
     
     setShowFeedback(true);
   };
 
+  const saveResultState = () => {
+    sessionStorage.setItem('loneliness_game_stats', JSON.stringify(gameState.stats));
+    sessionStorage.setItem('loneliness_game_history', JSON.stringify(history));
+    sessionStorage.setItem('loneliness_game_flags', JSON.stringify(gameState.flags));
+  };
+
   const handleNext = () => {
     if (!currentStage) {
-      sessionStorage.setItem('loneliness_game_stats', JSON.stringify(gameState.stats));
+      saveResultState();
       router.push('/result');
       return;
     }
@@ -140,7 +163,7 @@ export default function GamePage() {
       setLastEffects(null);
     } else {
       // 最終結果を sessionStorage に保存して結果ページへ遷移
-      sessionStorage.setItem('loneliness_game_stats', JSON.stringify(gameState.stats));
+      saveResultState();
       router.push('/result');
     }
   };

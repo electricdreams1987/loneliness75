@@ -22,6 +22,16 @@ export type PlayerFlags = {
   familyOriented: boolean;
   soloLifestyle: boolean;
   caregiverExperience: boolean;
+  keptSchoolFriends: boolean;
+  joinedHobbyCommunity: boolean;
+  hasTrustedNeighbor: boolean;
+  hasEmergencyContact: boolean;
+  reconnectedOldFriend: boolean;
+  workIdentityDependent: boolean;
+  familyPresentButDistant: boolean;
+  choseSolitudeWithStructure: boolean;
+  usesSupportServices: boolean;
+  hasIntergenerationalContact: boolean;
 };
 
 export type GameState = {
@@ -44,6 +54,7 @@ export type LifeEvent = {
   title: string;
   description: string;
   conditions?: Partial<PlayerFlags>;
+  anyConditions?: Partial<PlayerFlags>[];
   /** イベント固有の画像パス（将来的に各イベントごとに差し替え可能） */
   image?: string;
   /** イベント画像のaltテキスト */
@@ -64,14 +75,31 @@ export type LifeStage = {
 
 export type ChoiceHistory = {
   eventId: string;
+  eventTitle: string;
   choiceId: string;
   stageLabel: string;
   choiceLabel: string;
+  choiceDescription: string;
   effectsApplied: Partial<GameStats>;
   stateEffectsApplied?: Partial<PlayerFlags>;
+  meaning?: string;
+};
+
+export type LifeReflection = {
+  stageLabel: string;
+  text: string;
+  intensity: number;
+};
+
+export type DayScene = {
+  type: 'lowRisk' | 'mediumRisk' | 'highRisk' | 'matureFreedom';
+  title: string;
+  paragraphs: string[];
+  note: string;
 };
 
 export type GameResult = {
+  stats: GameStats;
   lonelinessRisk: number;
   riskBand: 'low' | 'semiLow' | 'medium' | 'high' | 'critical';
   riskBandLabel: string;
