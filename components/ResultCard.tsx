@@ -7,6 +7,8 @@ import { buildLifeReflections, buildSeventyFiveDay } from '@/lib/resultNarrative
 import EndingBadge from './EndingBadge';
 import {
   RotateCcw,
+  Share2,
+  Check,
   PlusCircle,
   MinusCircle,
   CheckCircle2,
@@ -24,8 +26,39 @@ interface ResultCardProps {
 
 export default function ResultCard({ result, history, flags, onRestart }: ResultCardProps) {
   const [animatedRisk, setAnimatedRisk] = useState(0);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
   const dayScene = buildSeventyFiveDay(result.stats, flags, result.lonelinessRisk);
   const reflections = buildLifeReflections(history);
+  const shareText = [
+    `75歳の孤独: ${result.endingName}`,
+    `孤独リスク: ${result.lonelinessRisk}点（${result.riskBandLabel}）`,
+    `75歳のある一日: ${dayScene.title}`,
+    dayScene.paragraphs[0],
+    reflections[0] ? `人生に残った選択: ${reflections[0].text}` : '',
+  ].filter(Boolean).join('\n\n');
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: '75歳の孤独 結果',
+          text: shareText,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareText);
+        setShareStatus('copied');
+        window.setTimeout(() => setShareStatus('idle'), 1800);
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(shareText);
+        setShareStatus('copied');
+        window.setTimeout(() => setShareStatus('idle'), 1800);
+      } catch {
+        setShareStatus('idle');
+      }
+    }
+  };
 
   // 孤独リスクの点数のカウントアップアニメーション
   useEffect(() => {
@@ -193,6 +226,18 @@ export default function ResultCard({ result, history, flags, onRestart }: Result
 
         {/* エンディングタイトル */}
         <EndingBadge endingName={result.endingName} routeName={result.routeName} />
+
+        <button
+          onClick={handleShare}
+          className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl border border-gray-700 bg-gray-900/70 px-4 py-3 text-xs font-bold text-gray-200 transition-colors duration-200 hover:border-sky-700/70 hover:bg-gray-800"
+        >
+          {shareStatus === 'copied' ? (
+            <Check className="w-4 h-4 text-emerald-400" />
+          ) : (
+            <Share2 className="w-4 h-4 text-sky-300" />
+          )}
+          {shareStatus === 'copied' ? '結果をコピーしました' : '結果の文章を共有'}
+        </button>
       </motion.div>
 
       {/* 5. 積み上げたもの vs 弱かったもの */}

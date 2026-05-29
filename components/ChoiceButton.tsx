@@ -14,8 +14,7 @@ interface ChoiceButtonProps {
 }
 
 export default function ChoiceButton({ choice, onClick, index, disabled = false }: ChoiceButtonProps) {
-  // 選択肢のアルファベット記号 (A, B, C, D)
-  const letters = ['A', 'B', 'C', 'D'];
+  const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
 
   return (
     <motion.button

@@ -47,6 +47,12 @@ export type PlayerFlags = {
   choseSolitudeWithStructure: boolean;
   usesSupportServices: boolean;
   hasIntergenerationalContact: boolean;
+  hasCompanionAnimal: boolean;
+  scamAware: boolean;
+  partnerCareExperience: boolean;
+  lostLocalPlace: boolean;
+  neighborMovedAway: boolean;
+  usesPublicConsultation: boolean;
 };
 
 export type GameState = {

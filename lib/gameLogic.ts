@@ -52,6 +52,12 @@ export const INITIAL_FLAGS: PlayerFlags = {
   choseSolitudeWithStructure: false,
   usesSupportServices: false,
   hasIntergenerationalContact: false,
+  hasCompanionAnimal: false,
+  scamAware: false,
+  partnerCareExperience: false,
+  lostLocalPlace: false,
+  neighborMovedAway: false,
+  usesPublicConsultation: false,
 };
 
 // ステータスを0〜100の範囲に収める関数

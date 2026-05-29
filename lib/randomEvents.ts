@@ -209,5 +209,179 @@ export const randomEvents: LifeEvent[] = [
         stateEffects: { noEmergencyContact: true }
       }
     ]
+  },
+  {
+    id: 'random_neighbor_moves',
+    stageId: 'stage_11',
+    title: '親しい隣人が引っ越す',
+    description: 'よく挨拶していた隣人が、来月引っ越すらしい。',
+    isRandom: true,
+    probability: 0.14,
+    anyConditions: [{ hasTrustedNeighbor: true }, { hasLocalCommunity: true }],
+    choices: [
+      {
+        id: 'random_neighbor_moves_A',
+        label: '連絡先を交換する',
+        description: '引っ越し後も近況を送れるようにする。',
+        feedback: '場所が変わっても、関係は少し残せる。',
+        effects: { relationshipCapital: 4, emergencySupport: 3 },
+        stateEffects: { neighborMovedAway: true, hasEmergencyContact: true, noEmergencyContact: false }
+      },
+      {
+        id: 'random_neighbor_moves_B',
+        label: '別の顔見知りを作る',
+        description: '店や清掃の日に、別の人にも挨拶する。',
+        feedback: '一つの支えが消えても、次の接点を作った。',
+        effects: { outsideWorkBelonging: 4, relationshipCapital: 3 },
+        stateEffects: { hasLocalCommunity: true }
+      },
+      {
+        id: 'random_neighbor_moves_C',
+        label: 'そのまま見送る',
+        description: '寂しいが、特に連絡先は聞かない。',
+        feedback: '静かに見送るほど、地域の線は少し細くなる。',
+        effects: { freedom: 2, emergencySupport: -3, relationshipCapital: -2 },
+        stateEffects: { neighborMovedAway: true }
+      }
+    ]
+  },
+  {
+    id: 'random_partner_health',
+    stageId: 'stage_9',
+    title: 'パートナーが体調を崩す',
+    description: '配偶者が検査を勧められた。暮らしをどう変える？',
+    isRandom: true,
+    probability: 0.14,
+    conditions: { married: true },
+    choices: [
+      {
+        id: 'random_partner_health_A',
+        label: '受診に付き添う',
+        description: '予定を動かして、一緒に病院へ行く。',
+        feedback: '身近な支えとして、関係が現実の形を持った。',
+        effects: { familyCapital: 5, emergencySupport: 4, health: -2, freedom: -3 },
+        stateEffects: { partnerCareExperience: true, familyOriented: true }
+      },
+      {
+        id: 'random_partner_health_B',
+        label: '予定を見直す',
+        description: '家事や仕事量を調整し、無理を減らす。',
+        feedback: '日常を組み直すことで、支えやすくなった。',
+        effects: { familyCapital: 3, money: 2, freedom: -2 },
+        stateEffects: { partnerCareExperience: true }
+      },
+      {
+        id: 'random_partner_health_C',
+        label: '外部支援を調べる',
+        description: '病院、制度、家事支援の相談先を見る。',
+        feedback: '夫婦だけで抱えず、使える支えを増やした。',
+        effects: { emergencySupport: 5, money: -2, meaningCapital: 2 },
+        stateEffects: { usesSupportServices: true, partnerCareExperience: true }
+      }
+    ]
+  },
+  {
+    id: 'random_scam_call',
+    stageId: 'stage_11',
+    title: '怪しい電話が来る',
+    description: '役所を名乗る相手から、口座情報を聞かれた。',
+    isRandom: true,
+    probability: 0.16,
+    choices: [
+      {
+        id: 'random_scam_A',
+        label: '家族や友人に確認する',
+        description: 'すぐ切って、信頼できる人に聞く。',
+        feedback: '迷った時に聞ける相手が、被害を遠ざけた。',
+        effects: { emergencySupport: 4, relationshipCapital: 2 },
+        stateEffects: { scamAware: true, hasEmergencyContact: true, noEmergencyContact: false }
+      },
+      {
+        id: 'random_scam_B',
+        label: '消費生活窓口に相談する',
+        description: '公的な相談先に電話し、対応を確認する。',
+        feedback: '制度に頼ることで、一人の判断にしなかった。',
+        effects: { emergencySupport: 5, meaningCapital: 2 },
+        stateEffects: { scamAware: true, usesPublicConsultation: true }
+      },
+      {
+        id: 'random_scam_C',
+        label: '一人で判断する',
+        description: '不安だが、誰にも聞かずに対応する。',
+        feedback: '一人で抱えるほど、危ない話を見分けにくい。',
+        effects: { money: -4, emergencySupport: -2, freedom: 1 },
+        stateEffects: { scamAware: false }
+      }
+    ]
+  },
+  {
+    id: 'random_animal_encounter',
+    stageId: 'stage_10',
+    title: '動物との出会い',
+    description: '散歩中、保護猫の譲渡会の案内を見つけた。',
+    isRandom: true,
+    probability: 0.12,
+    anyConditions: [{ livingAlone: true }, { soloLifestyle: true }],
+    choices: [
+      {
+        id: 'random_animal_A',
+        label: '世話を始める',
+        description: '迎える準備をして、日々のリズムを作る。',
+        feedback: '一人の暮らしに、世話をする朝が生まれた。',
+        effects: { meaningCapital: 5, health: 2, money: -3, freedom: -2 },
+        stateEffects: { hasCompanionAnimal: true, choseSolitudeWithStructure: true }
+      },
+      {
+        id: 'random_animal_B',
+        label: '保護団体を手伝う',
+        description: '飼わずに、譲渡会の手伝いを申し出る。',
+        feedback: '動物をきっかけに、人との接点も増えた。',
+        effects: { outsideWorkBelonging: 4, relationshipCapital: 3, meaningCapital: 4 },
+        stateEffects: { hasCompanionAnimal: true, communityActive: true }
+      },
+      {
+        id: 'random_animal_C',
+        label: '見守るだけにする',
+        description: '写真を保存し、今は生活を変えない。',
+        feedback: '心は少し動いたが、日常はそのまま続いた。',
+        effects: { meaningCapital: 2, freedom: 2 },
+        stateEffects: { hasCompanionAnimal: false }
+      }
+    ]
+  },
+  {
+    id: 'random_shop_closes',
+    stageId: 'stage_11',
+    title: 'なじみの店が閉店する',
+    description: '朝に寄っていた店が、今月で閉まると知った。',
+    isRandom: true,
+    probability: 0.13,
+    anyConditions: [{ hasLocalCommunity: true }, { communityActive: true }],
+    choices: [
+      {
+        id: 'random_shop_A',
+        label: '店主に挨拶する',
+        description: '最後の日に行き、お礼を伝える。',
+        feedback: '場所は消えても、関係の記憶は残った。',
+        effects: { relationshipCapital: 3, meaningCapital: 2 },
+        stateEffects: { lostLocalPlace: true }
+      },
+      {
+        id: 'random_shop_B',
+        label: '次の行き先を探す',
+        description: '近くの店や集まりを一つ試してみる。',
+        feedback: '居場所を失った後、次の接点を探し始めた。',
+        effects: { outsideWorkBelonging: 4, relationshipCapital: 2 },
+        stateEffects: { lostLocalPlace: true, hasLocalCommunity: true }
+      },
+      {
+        id: 'random_shop_C',
+        label: '家にいる時間を増やす',
+        description: '外へ出る理由が減り、家で過ごす。',
+        feedback: '静かな時間は増えたが、朝の会話は減った。',
+        effects: { freedom: 3, outsideWorkBelonging: -3 },
+        stateEffects: { lostLocalPlace: true }
+      }
+    ]
   }
 ];

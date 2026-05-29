@@ -73,20 +73,33 @@ export function buildSeventyFiveDay(
     stats.relationshipCapital >= 50 ||
     stats.outsideWorkBelonging >= 50 ||
     stats.emergencySupport >= 50 ||
-    Boolean(flags?.hasTrustedNeighbor || flags?.hasEmergencyContact || flags?.reconnectedOldFriend);
+    Boolean(
+      flags?.hasTrustedNeighbor ||
+        flags?.hasEmergencyContact ||
+        flags?.reconnectedOldFriend ||
+        flags?.usesSupportServices ||
+        flags?.usesPublicConsultation ||
+        flags?.hasCompanionAnimal
+    );
   const hasMatureSolitude =
     (stats.freedom >= 60 || Boolean(flags?.soloLifestyle)) &&
     hasOutsideThread &&
-    (stats.outsideWorkBelonging >= 45 || Boolean(flags?.joinedHobbyCommunity || flags?.choseSolitudeWithStructure));
+    (stats.outsideWorkBelonging >= 45 ||
+      Boolean(
+        flags?.joinedHobbyCommunity ||
+          flags?.choseSolitudeWithStructure ||
+          flags?.hasCompanionAnimal ||
+          flags?.usesSupportServices
+      ));
 
   if (hasMatureSolitude) {
     return {
       type: 'matureFreedom',
       title: '選び取った静けさのある一日',
       paragraphs: [
-        '朝、部屋は静かです。けれど、その静けさは誰にも気づかれない沈黙ではありません。趣味の予定、地域の顔見知り、または短く連絡できる相手が、今日のどこかに細く残っています。',
+        `朝、部屋は静かです。けれど、その静けさは誰にも気づかれない沈黙ではありません。${flags?.hasCompanionAnimal ? '世話を待つ小さな存在や、' : ''}趣味の予定、地域の顔見知り、または短く連絡できる相手が、今日のどこかに細く残っています。`,
         '昼、あなたは一人で食事をします。急かされない時間を楽しみながらも、必要なら連絡できる名前がいくつか浮かびます。一人でいることと、孤立していることは違うのだと感じられます。',
-        '夜、予定のない時間も自分のものです。自由は、助けを呼べる細い線と一緒にあるとき、寂しさではなく落ち着きとして残ります。'
+        `夜、予定のない時間も自分のものです。${flags?.usesSupportServices || flags?.usesPublicConsultation ? '相談先や見守りの仕組みも控えています。' : ''}自由は、助けを呼べる細い線と一緒にあるとき、寂しさではなく落ち着きとして残ります。`
       ],
       note: 'この結果は、一人の自由を罰していません。リスクになるのは、自由そのものではなく、困った時に誰にも届かない状態です。',
     };
