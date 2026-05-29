@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChoiceHistory, GameResult, PlayerFlags } from '@/types/game';
+import { ChoiceHistory, GameResult, LifeStatus, PlayerFlags } from '@/types/game';
 import { buildLifeReflections, buildSeventyFiveDay } from '@/lib/resultNarrative';
 import EndingBadge from './EndingBadge';
+import LifeStatusBar, { formatLifeStatus } from './LifeStatusBar';
 import {
   RotateCcw,
   Share2,
@@ -21,10 +22,38 @@ interface ResultCardProps {
   result: GameResult;
   history: ChoiceHistory[];
   flags: PlayerFlags | null;
+  lifeStatus: LifeStatus | null;
   onRestart: () => void;
 }
 
-export default function ResultCard({ result, history, flags, onRestart }: ResultCardProps) {
+function buildStatusNote(lifeStatus: LifeStatus, flags: PlayerFlags | null): string {
+  if (
+    lifeStatus.maritalStatus === 'single' &&
+    lifeStatus.housingStatus === 'alone' &&
+    (lifeStatus.hasLocalCommunity || lifeStatus.hasEmergencyContact)
+  ) {
+    return '一人で暮らしていても、挨拶する相手や連絡先があるなら、孤独と孤立は同じではありません。';
+  }
+
+  if (
+    lifeStatus.childrenCount > 0 &&
+    (flags?.familyPresentButDistant || lifeStatus.hasEmergencyContact === false)
+  ) {
+    return '家族はいても、日々の連絡や頼る約束が薄いと、緊急時には少し距離が残ります。';
+  }
+
+  if (lifeStatus.jobStatus === 'owner' || flags?.workIdentityDependent) {
+    return '長く自分で決める人生を歩みました。その強さは残る一方、弱音を見せる相手を持つことも支えになります。';
+  }
+
+  if (lifeStatus.maritalStatus === 'divorced') {
+    return '別々の暮らしを選んだ後も、友人、地域、制度との接点は作り直せます。';
+  }
+
+  return 'このステータスは、あなたが積み重ねた選択の現在地です。ここからも関係や支えは作り直せます。';
+}
+
+export default function ResultCard({ result, history, flags, lifeStatus, onRestart }: ResultCardProps) {
   const [animatedRisk, setAnimatedRisk] = useState(0);
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
   const dayScene = buildSeventyFiveDay(result.stats, flags, result.lonelinessRisk);
@@ -32,6 +61,7 @@ export default function ResultCard({ result, history, flags, onRestart }: Result
   const shareText = [
     `75歳の孤独: ${result.endingName}`,
     `孤独リスク: ${result.lonelinessRisk}点（${result.riskBandLabel}）`,
+    lifeStatus ? `最終ステータス: ${formatLifeStatus(lifeStatus).join(' / ')}` : '',
     `75歳のある一日: ${dayScene.title}`,
     dayScene.paragraphs[0],
     reflections[0] ? `人生に残った選択: ${reflections[0].text}` : '',
@@ -124,6 +154,23 @@ export default function ResultCard({ result, history, flags, onRestart }: Result
           {result.scenario}
         </p>
       </motion.div>
+
+      {lifeStatus && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="w-full"
+        >
+          <h3 className="mb-3 flex items-center gap-2 text-base font-bold tracking-wide text-gray-200">
+            75歳時点の人生ステータス
+          </h3>
+          <LifeStatusBar lifeStatus={lifeStatus} compact />
+          <p className="mt-3 rounded-xl border border-gray-800 bg-gray-900/50 px-4 py-3 text-xs leading-relaxed text-gray-300">
+            {buildStatusNote(lifeStatus, flags)}
+          </p>
+        </motion.div>
+      )}
 
       {/* 2. 75歳のある一日 */}
       <motion.div

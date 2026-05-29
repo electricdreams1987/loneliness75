@@ -53,11 +53,42 @@ export type PlayerFlags = {
   lostLocalPlace: boolean;
   neighborMovedAway: boolean;
   usesPublicConsultation: boolean;
+  partnerRelationshipRepaired: boolean;
+  partnerRelationshipDistant: boolean;
+};
+
+export type LifeStatus = {
+  age: number;
+  maritalStatus: 'single' | 'dating' | 'married' | 'divorced' | 'widowed';
+  childrenCount: number;
+  jobStatus: 'student' | 'employee' | 'manager' | 'executive' | 'owner' | 'freelance' | 'unemployed' | 'retired';
+  housingStatus: 'withParents' | 'alone' | 'withPartner' | 'withFamily' | 'shared' | 'careFacility';
+  hasEmergencyContact: boolean;
+  hasLocalCommunity: boolean;
+  healthLabel: '良い' | 'ふつう' | '不安';
+};
+
+export type LifeStatusEffects = Partial<Omit<LifeStatus, 'childrenCount'>> & {
+  childrenCount?: number;
+  childrenCountDelta?: number;
+};
+
+export type LifeStatusConditions = {
+  maritalStatus?: LifeStatus['maritalStatus'][];
+  childrenCount?: number;
+  childrenCountMin?: number;
+  childrenCountMax?: number;
+  jobStatus?: LifeStatus['jobStatus'][];
+  housingStatus?: LifeStatus['housingStatus'][];
+  hasEmergencyContact?: boolean;
+  hasLocalCommunity?: boolean;
+  healthLabel?: LifeStatus['healthLabel'][];
 };
 
 export type GameState = {
   stats: GameStats;
   flags: PlayerFlags;
+  lifeStatus: LifeStatus;
 };
 
 export type Choice = {
@@ -67,6 +98,7 @@ export type Choice = {
   feedback: string;
   effects: Partial<GameStats>;
   stateEffects?: Partial<PlayerFlags>;
+  lifeStatusEffects?: LifeStatusEffects;
 };
 
 export type LifeEvent = {
@@ -76,6 +108,7 @@ export type LifeEvent = {
   description: string;
   conditions?: Partial<PlayerFlags>;
   anyConditions?: Partial<PlayerFlags>[];
+  lifeStatusConditions?: LifeStatusConditions;
   isRandom?: boolean;
   probability?: number;
   /** イベント固有の画像パス（将来的に各イベントごとに差し替え可能） */
@@ -105,6 +138,7 @@ export type ChoiceHistory = {
   choiceDescription: string;
   effectsApplied: Partial<GameStats>;
   stateEffectsApplied?: Partial<PlayerFlags>;
+  lifeStatusEffectsApplied?: LifeStatusEffects;
   meaning?: string;
 };
 

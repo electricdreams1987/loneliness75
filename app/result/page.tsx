@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import ResultCard from '@/components/ResultCard';
 import { processGameResult } from '@/lib/gameLogic';
-import { ChoiceHistory, GameStats, GameResult, PlayerFlags } from '@/types/game';
+import { ChoiceHistory, GameStats, GameResult, LifeStatus, PlayerFlags } from '@/types/game';
 import { Home } from 'lucide-react';
 
 export default function ResultPage() {
@@ -13,6 +13,7 @@ export default function ResultPage() {
   const [result, setResult] = useState<GameResult | null>(null);
   const [history, setHistory] = useState<ChoiceHistory[]>([]);
   const [flags, setFlags] = useState<PlayerFlags | null>(null);
+  const [lifeStatus, setLifeStatus] = useState<LifeStatus | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export default function ResultPage() {
         const calculatedResult = processGameResult(parsedStats);
         const storedHistoryString = sessionStorage.getItem('loneliness_game_history');
         const storedFlagsString = sessionStorage.getItem('loneliness_game_flags');
+        const storedLifeStatusString = sessionStorage.getItem('loneliness_game_life_status');
 
         if (storedHistoryString) {
           setHistory(JSON.parse(storedHistoryString));
@@ -35,6 +37,10 @@ export default function ResultPage() {
 
         if (storedFlagsString) {
           setFlags(JSON.parse(storedFlagsString));
+        }
+
+        if (storedLifeStatusString) {
+          setLifeStatus(JSON.parse(storedLifeStatusString));
         }
 
         setResult(calculatedResult);
@@ -51,6 +57,7 @@ export default function ResultPage() {
     sessionStorage.removeItem('loneliness_game_stats');
     sessionStorage.removeItem('loneliness_game_history');
     sessionStorage.removeItem('loneliness_game_flags');
+    sessionStorage.removeItem('loneliness_game_life_status');
     router.push('/');
   };
 
@@ -84,7 +91,7 @@ export default function ResultPage() {
             </button>
           </div>
         ) : (
-          result && <ResultCard result={result} history={history} flags={flags} onRestart={handleRestart} />
+          result && <ResultCard result={result} history={history} flags={flags} lifeStatus={lifeStatus} onRestart={handleRestart} />
         )}
       </main>
 

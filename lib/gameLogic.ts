@@ -1,4 +1,4 @@
-import { GameStats, GameResult, PlayerFlags } from '@/types/game';
+import { GameStats, GameResult, LifeStatus, LifeStatusEffects, PlayerFlags } from '@/types/game';
 import { getEnding } from './endings';
 import { getScenario } from './resultText';
 import { getRecommendations } from './recommendations';
@@ -58,6 +58,19 @@ export const INITIAL_FLAGS: PlayerFlags = {
   lostLocalPlace: false,
   neighborMovedAway: false,
   usesPublicConsultation: false,
+  partnerRelationshipRepaired: false,
+  partnerRelationshipDistant: false,
+};
+
+export const INITIAL_LIFE_STATUS: LifeStatus = {
+  age: 18,
+  maritalStatus: 'single',
+  childrenCount: 0,
+  jobStatus: 'student',
+  housingStatus: 'withParents',
+  hasEmergencyContact: false,
+  hasLocalCommunity: false,
+  healthLabel: '良い',
 };
 
 // ステータスを0〜100の範囲に収める関数
@@ -83,6 +96,29 @@ export function applyStateEffects(
   return {
     ...currentFlags,
     ...stateEffects,
+  };
+}
+
+export function getHealthLabel(health: number): LifeStatus['healthLabel'] {
+  if (health >= 70) return '良い';
+  if (health >= 45) return 'ふつう';
+  return '不安';
+}
+
+export function applyLifeStatusEffects(
+  currentLifeStatus: LifeStatus,
+  effects: LifeStatusEffects = {},
+  nextStats?: GameStats
+): LifeStatus {
+  const { childrenCountDelta, ...directEffects } = effects;
+  const nextChildrenCount =
+    directEffects.childrenCount ?? currentLifeStatus.childrenCount + (childrenCountDelta ?? 0);
+
+  return {
+    ...currentLifeStatus,
+    ...directEffects,
+    childrenCount: Math.max(0, nextChildrenCount),
+    healthLabel: directEffects.healthLabel ?? (nextStats ? getHealthLabel(nextStats.health) : currentLifeStatus.healthLabel),
   };
 }
 

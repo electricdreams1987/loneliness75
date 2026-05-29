@@ -1,20 +1,52 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import StageProgress from '@/components/StageProgress';
 import LifeEventCard from '@/components/LifeEventCard';
 import ChoiceButton from '@/components/ChoiceButton';
 import StatsPanel from '@/components/StatsPanel';
+import LifeStatusBar from '@/components/LifeStatusBar';
 import { lifeStages } from '@/lib/lifeStages';
 import { randomEvents } from '@/lib/randomEvents';
-import { INITIAL_FLAGS, INITIAL_STATS, applyEffects, applyStateEffects } from '@/lib/gameLogic';
-import { Choice, ChoiceHistory, GameState, LifeEvent, PlayerFlags } from '@/types/game';
+import { INITIAL_FLAGS, INITIAL_LIFE_STATUS, INITIAL_STATS, applyEffects, applyLifeStatusEffects, applyStateEffects } from '@/lib/gameLogic';
+import { Choice, ChoiceHistory, GameState, LifeEvent, LifeStatus, LifeStatusConditions, PlayerFlags } from '@/types/game';
 import { compactText } from '@/lib/displayText';
 import { AnimatePresence, motion } from 'framer-motion';
 
-function canShowEvent(event: LifeEvent, flags: PlayerFlags): boolean {
+const STAGE_AGES = [18, 22, 26, 29, 32, 37, 45, 52, 57, 62, 67, 75];
+
+function withStageAge(lifeStatus: LifeStatus, stageIndex: number): LifeStatus {
+  return {
+    ...lifeStatus,
+    age: STAGE_AGES[stageIndex] ?? lifeStatus.age,
+  };
+}
+
+function matchesLifeStatusConditions(
+  lifeStatus: LifeStatus,
+  conditions?: LifeStatusConditions
+): boolean {
+  if (!conditions) {
+    return true;
+  }
+
+  if (conditions.maritalStatus && !conditions.maritalStatus.includes(lifeStatus.maritalStatus)) return false;
+  if (conditions.jobStatus && !conditions.jobStatus.includes(lifeStatus.jobStatus)) return false;
+  if (conditions.housingStatus && !conditions.housingStatus.includes(lifeStatus.housingStatus)) return false;
+  if (conditions.healthLabel && !conditions.healthLabel.includes(lifeStatus.healthLabel)) return false;
+  if (conditions.childrenCount !== undefined && lifeStatus.childrenCount !== conditions.childrenCount) return false;
+  if (conditions.childrenCountMin !== undefined && lifeStatus.childrenCount < conditions.childrenCountMin) return false;
+  if (conditions.childrenCountMax !== undefined && lifeStatus.childrenCount > conditions.childrenCountMax) return false;
+  if (conditions.hasEmergencyContact !== undefined && lifeStatus.hasEmergencyContact !== conditions.hasEmergencyContact) return false;
+  if (conditions.hasLocalCommunity !== undefined && lifeStatus.hasLocalCommunity !== conditions.hasLocalCommunity) return false;
+
+  return true;
+}
+
+function canShowEvent(event: LifeEvent, gameState: GameState): boolean {
+  const { flags, lifeStatus } = gameState;
   if (event.conditions) {
     const matchesAll = (Object.entries(event.conditions) as Array<[keyof PlayerFlags, boolean]>).every(
       ([key, expectedValue]) => flags[key] === expectedValue
@@ -23,6 +55,10 @@ function canShowEvent(event: LifeEvent, flags: PlayerFlags): boolean {
     if (!matchesAll) {
       return false;
     }
+  }
+
+  if (!matchesLifeStatusConditions(lifeStatus, event.lifeStatusConditions)) {
+    return false;
   }
 
   if (!event.anyConditions || event.anyConditions.length === 0) {
@@ -39,10 +75,10 @@ function canShowEvent(event: LifeEvent, flags: PlayerFlags): boolean {
 function findNextVisibleEventIndex(
   events: LifeEvent[],
   startIndex: number,
-  flags: PlayerFlags
+  gameState: GameState
 ): number {
   for (let index = startIndex; index < events.length; index++) {
-    if (canShowEvent(events[index], flags)) {
+    if (canShowEvent(events[index], gameState)) {
       return index;
     }
   }
@@ -50,9 +86,13 @@ function findNextVisibleEventIndex(
   return -1;
 }
 
-function findNextPlayablePosition(startStageIndex: number, flags: PlayerFlags) {
+function findNextPlayablePosition(startStageIndex: number, gameState: GameState) {
   for (let stageIndex = startStageIndex; stageIndex < lifeStages.length; stageIndex++) {
-    const eventIndex = findNextVisibleEventIndex(lifeStages[stageIndex].events, 0, flags);
+    const agedGameState = {
+      ...gameState,
+      lifeStatus: withStageAge(gameState.lifeStatus, stageIndex),
+    };
+    const eventIndex = findNextVisibleEventIndex(lifeStages[stageIndex].events, 0, agedGameState);
     if (eventIndex !== -1) {
       return { stageIndex, eventIndex };
     }
@@ -61,22 +101,22 @@ function findNextPlayablePosition(startStageIndex: number, flags: PlayerFlags) {
   return null;
 }
 
-function canShowRandomEvent(event: LifeEvent, flags: PlayerFlags, seenEventIds: string[]): boolean {
+function canShowRandomEvent(event: LifeEvent, gameState: GameState, seenEventIds: string[]): boolean {
   if (!event.isRandom || seenEventIds.includes(event.id)) {
     return false;
   }
 
-  return canShowEvent(event, flags);
+  return canShowEvent(event, gameState);
 }
 
-function selectRandomEvent(stageIndex: number, flags: PlayerFlags, seenEventIds: string[]): LifeEvent | null {
+function selectRandomEvent(stageIndex: number, gameState: GameState, seenEventIds: string[]): LifeEvent | null {
   const stage = lifeStages[stageIndex];
   if (!stage) {
     return null;
   }
 
   const candidates = randomEvents.filter(
-    (event) => event.stageId === stage.id && canShowRandomEvent(event, flags, seenEventIds)
+    (event) => event.stageId === stage.id && canShowRandomEvent(event, gameState, seenEventIds)
   );
 
   for (const event of candidates) {
@@ -89,9 +129,39 @@ function selectRandomEvent(stageIndex: number, flags: PlayerFlags, seenEventIds:
 }
 
 function applyChoice(choice: Choice, gameState: GameState): GameState {
+  const nextStats = applyEffects(gameState.stats, choice.effects);
+  const nextFlags = applyStateEffects(gameState.flags, choice.stateEffects);
+  const nextLifeStatus = applyLifeStatusEffects(
+    {
+      ...gameState.lifeStatus,
+      hasEmergencyContact: nextFlags.hasEmergencyContact,
+      hasLocalCommunity: nextFlags.hasLocalCommunity || nextFlags.communityActive,
+    },
+    choice.lifeStatusEffects,
+    nextStats
+  );
+
   return {
-    stats: applyEffects(gameState.stats, choice.effects),
-    flags: applyStateEffects(gameState.flags, choice.stateEffects),
+    stats: nextStats,
+    flags: {
+      ...nextFlags,
+      hasEmergencyContact: nextLifeStatus.hasEmergencyContact,
+      noEmergencyContact: !nextLifeStatus.hasEmergencyContact,
+      hasLocalCommunity: nextLifeStatus.hasLocalCommunity,
+      communityActive: nextFlags.communityActive || nextLifeStatus.hasLocalCommunity,
+      married: nextLifeStatus.maritalStatus === 'married',
+      single: nextLifeStatus.maritalStatus === 'single',
+      divorced: nextLifeStatus.maritalStatus === 'divorced',
+      hasChildren: nextLifeStatus.childrenCount > 0,
+      hasChild: nextLifeStatus.childrenCount > 0,
+      noChild: nextLifeStatus.childrenCount === 0 && nextFlags.noChild,
+      livingAlone: nextLifeStatus.housingStatus === 'alone',
+      livingWithFamily: nextLifeStatus.housingStatus === 'withFamily' || nextLifeStatus.housingStatus === 'withPartner',
+      unemployed: nextLifeStatus.jobStatus === 'unemployed',
+      employed: !['student', 'unemployed', 'retired'].includes(nextLifeStatus.jobStatus),
+      managementTrack: nextFlags.managementTrack || ['manager', 'executive', 'owner'].includes(nextLifeStatus.jobStatus),
+    },
+    lifeStatus: nextLifeStatus,
   };
 }
 
@@ -104,6 +174,7 @@ export default function GamePage() {
   const [gameState, setGameState] = useState<GameState>({
     stats: INITIAL_STATS,
     flags: INITIAL_FLAGS,
+    lifeStatus: INITIAL_LIFE_STATUS,
   });
   const [currentRandomEvent, setCurrentRandomEvent] = useState<LifeEvent | null>(null);
   const [lastEffects, setLastEffects] = useState<Choice['effects'] | null>(null);
@@ -111,54 +182,59 @@ export default function GamePage() {
   const [seenEventIds, setSeenEventIds] = useState<string[]>([]);
   const [recentFeedback, setRecentFeedback] = useState<string | null>(null);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const swipeStartX = useRef<number | null>(null);
 
   useEffect(() => {
     // ゲーム開始時にセッションストレージをクリア
     sessionStorage.removeItem('loneliness_game_stats');
     sessionStorage.removeItem('loneliness_game_history');
     sessionStorage.removeItem('loneliness_game_flags');
+    sessionStorage.removeItem('loneliness_game_life_status');
   }, []);
 
   const currentStage = lifeStages[currentStageIndex];
   const currentEvent = currentRandomEvent ?? currentStage?.events[currentEventIndex];
   const visibleEventCount = currentStage
-    ? currentStage.events.filter((event) => canShowEvent(event, gameState.flags)).length
+    ? currentStage.events.filter((event) => canShowEvent(event, gameState)).length
     : 0;
   const currentVisibleEventNumber = currentStage
     ? currentStage.events
         .slice(0, currentEventIndex + 1)
-        .filter((event) => canShowEvent(event, gameState.flags)).length
+        .filter((event) => canShowEvent(event, gameState)).length
     : 0;
+  const currentLifeStatus = withStageAge(gameState.lifeStatus, currentStageIndex);
+  const canSwipeChoices = currentEvent?.choices.length === 2 && !isAdvancing;
 
   const saveGameProgress = (
     nextStats = gameState.stats,
     nextFlags = gameState.flags,
-    nextHistory = history
+    nextHistory = history,
+    nextLifeStatus = currentLifeStatus
   ) => {
     sessionStorage.setItem('loneliness_game_stats', JSON.stringify(nextStats));
     sessionStorage.setItem('loneliness_game_history', JSON.stringify(nextHistory));
     sessionStorage.setItem('loneliness_game_flags', JSON.stringify(nextFlags));
+    sessionStorage.setItem('loneliness_game_life_status', JSON.stringify(nextLifeStatus));
   };
 
-  const goToResult = (nextStats: GameState['stats'], nextFlags: PlayerFlags, nextHistory: ChoiceHistory[]) => {
-    saveGameProgress(nextStats, nextFlags, nextHistory);
+  const goToResult = (nextGameState: GameState, nextHistory: ChoiceHistory[]) => {
+    saveGameProgress(nextGameState.stats, nextGameState.flags, nextHistory, { ...nextGameState.lifeStatus, age: 75 });
     router.push('/result');
   };
 
   const advanceToNextEvent = (
-    nextStats: GameState['stats'],
-    nextFlags: PlayerFlags,
+    nextGameState: GameState,
     nextHistory: ChoiceHistory[],
     nextSeenEventIds: string[],
     answeredRandomEvent: boolean
   ) => {
     if (!currentStage) {
-      goToResult(nextStats, nextFlags, nextHistory);
+      goToResult(nextGameState, nextHistory);
       return;
     }
 
     if (!answeredRandomEvent) {
-      const randomEvent = selectRandomEvent(currentStageIndex, nextFlags, nextSeenEventIds);
+      const randomEvent = selectRandomEvent(currentStageIndex, nextGameState, nextSeenEventIds);
       if (randomEvent) {
         setCurrentRandomEvent(randomEvent);
         return;
@@ -168,7 +244,7 @@ export default function GamePage() {
     const nextEventIndex = findNextVisibleEventIndex(
       currentStage.events,
       currentEventIndex + 1,
-      nextFlags
+      nextGameState
     );
 
     if (nextEventIndex !== -1) {
@@ -177,14 +253,19 @@ export default function GamePage() {
       return;
     }
 
-    const nextPosition = findNextPlayablePosition(currentStageIndex + 1, nextFlags);
+    const nextPosition = findNextPlayablePosition(currentStageIndex + 1, nextGameState);
 
     if (nextPosition) {
+      const agedGameState = {
+        ...nextGameState,
+        lifeStatus: withStageAge(nextGameState.lifeStatus, nextPosition.stageIndex),
+      };
+      setGameState(agedGameState);
       setCurrentStageIndex(nextPosition.stageIndex);
       setCurrentEventIndex(nextPosition.eventIndex);
       setCurrentRandomEvent(null);
     } else {
-      goToResult(nextStats, nextFlags, nextHistory);
+      goToResult(nextGameState, nextHistory);
     }
   };
 
@@ -206,6 +287,7 @@ export default function GamePage() {
       choiceDescription: choice.description,
       effectsApplied: choice.effects,
       stateEffectsApplied: choice.stateEffects,
+      lifeStatusEffectsApplied: choice.lifeStatusEffects,
       meaning: choice.feedback,
     };
     const nextHistory = [...history, newHistoryItem];
@@ -218,14 +300,30 @@ export default function GamePage() {
 
     window.setTimeout(() => {
       advanceToNextEvent(
-        nextGameState.stats,
-        nextGameState.flags,
+        nextGameState,
         nextHistory,
         nextSeenEventIds,
         Boolean(currentRandomEvent)
       );
       setIsAdvancing(false);
     }, 120);
+  };
+
+  const handleSwipeEnd = (endX: number) => {
+    if (!currentEvent || !canSwipeChoices || swipeStartX.current === null) {
+      swipeStartX.current = null;
+      return;
+    }
+
+    const deltaX = endX - swipeStartX.current;
+    swipeStartX.current = null;
+
+    if (Math.abs(deltaX) < 72) {
+      return;
+    }
+
+    const selectedChoice = deltaX < 0 ? currentEvent.choices[0] : currentEvent.choices[1];
+    handleChoiceSelect(selectedChoice);
   };
 
   return (
@@ -246,6 +344,7 @@ export default function GamePage() {
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 pt-6 flex flex-col gap-6 md:gap-8">
         
         {/* ステータスパネル (常に現在のステータスを表示) */}
+        <LifeStatusBar lifeStatus={currentLifeStatus} />
         <StatsPanel stats={gameState.stats} lastEffects={lastEffects} />
 
         <div className="flex-1 flex flex-col gap-6">
@@ -266,7 +365,25 @@ export default function GamePage() {
 
               {currentEvent && <LifeEventCard event={currentEvent} />}
 
-              <div className="flex flex-col gap-3">
+              {currentEvent?.choices.length === 2 && (
+                <div className="grid grid-cols-2 gap-2 rounded-xl border border-gray-800 bg-gray-900/40 px-3 py-2 text-[11px] font-bold text-gray-300">
+                  <span className="truncate">← {compactText(currentEvent.choices[0].label, 18)}</span>
+                  <span className="truncate text-right">{compactText(currentEvent.choices[1].label, 18)} →</span>
+                </div>
+              )}
+
+              <div
+                className="flex flex-col gap-3 touch-pan-y"
+                onPointerDown={(event) => {
+                  if (canSwipeChoices && event.pointerType !== 'mouse') {
+                    swipeStartX.current = event.clientX;
+                  }
+                }}
+                onPointerUp={(event) => handleSwipeEnd(event.clientX)}
+                onPointerCancel={() => {
+                  swipeStartX.current = null;
+                }}
+              >
                 {currentEvent?.choices.map((choice, idx) => (
                   <ChoiceButton
                     key={choice.id}
