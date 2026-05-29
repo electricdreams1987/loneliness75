@@ -15,9 +15,23 @@ export type PlayerFlags = {
   hasPartner: boolean;
   married: boolean;
   hasChildren: boolean;
+  hasChild: boolean;
+  noChild: boolean;
+  single: boolean;
+  divorced: boolean;
+  livingAlone: boolean;
+  livingWithFamily: boolean;
+  employed: boolean;
+  unemployed: boolean;
+  careerInterrupted: boolean;
+  companyBankrupt: boolean;
   managementTrack: boolean;
   careerFocused: boolean;
   communityActive: boolean;
+  hasLocalCommunity: boolean;
+  noLocalCommunity: boolean;
+  hasOldFriends: boolean;
+  lostOldFriends: boolean;
   localFriendship: boolean;
   familyOriented: boolean;
   soloLifestyle: boolean;
@@ -26,6 +40,7 @@ export type PlayerFlags = {
   joinedHobbyCommunity: boolean;
   hasTrustedNeighbor: boolean;
   hasEmergencyContact: boolean;
+  noEmergencyContact: boolean;
   reconnectedOldFriend: boolean;
   workIdentityDependent: boolean;
   familyPresentButDistant: boolean;
@@ -55,6 +70,8 @@ export type LifeEvent = {
   description: string;
   conditions?: Partial<PlayerFlags>;
   anyConditions?: Partial<PlayerFlags>[];
+  isRandom?: boolean;
+  probability?: number;
   /** イベント固有の画像パス（将来的に各イベントごとに差し替え可能） */
   image?: string;
   /** イベント画像のaltテキスト */

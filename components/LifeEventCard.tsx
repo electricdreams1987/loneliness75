@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { LifeEvent } from '@/types/game';
+import { compactText, compactTitle } from '@/lib/displayText';
 import { Sparkles } from 'lucide-react';
 
 interface LifeEventCardProps {
@@ -33,11 +34,11 @@ export default function LifeEventCard({ event }: LifeEventCardProps) {
       </div>
 
       <h3 className="text-xl md:text-2xl font-black text-gray-100 tracking-tight leading-snug mb-4">
-        {event.title}
+        {compactTitle(event.title)}
       </h3>
 
       <p className="text-sm md:text-base text-gray-200 leading-relaxed font-normal">
-        {event.description}
+        {compactText(event.description, 72)}
       </p>
     </motion.div>
   );

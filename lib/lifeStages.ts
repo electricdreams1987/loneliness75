@@ -56,7 +56,7 @@ export const lifeStages: LifeStage[] = [
             description: '荷造りの合間に日程を調整し、最後の集まりに行く。',
             feedback: 'あなたは古い関係に区切りをつけず、細く続く連絡先を残しました。進路準備の時間は少し減りますが、頼れる友人の芽が残ります。',
             effects: { relationshipCapital: 6, emergencySupport: 3, freedom: -1, career: -1 },
-            stateEffects: { keptSchoolFriends: true }
+            stateEffects: { keptSchoolFriends: true, hasOldFriends: true }
           },
           {
             id: 'choice_1_chat_B',
@@ -79,7 +79,7 @@ export const lifeStages: LifeStage[] = [
             description: '大人数は避け、仲の良い二、三人に個別で声をかける。',
             feedback: 'あなたは無理のない人数で関係を残しました。広い輪は広がりませんが、続けやすい友人関係が残ります。',
             effects: { relationshipCapital: 4, emergencySupport: 2, freedom: -1 },
-            stateEffects: { keptSchoolFriends: true }
+            stateEffects: { keptSchoolFriends: true, hasOldFriends: true }
           }
         ]
       }
@@ -111,7 +111,7 @@ export const lifeStages: LifeStage[] = [
             description: '社外のコミュニティや趣味の集まりに積極的に参加し、多様なバックグラウンドを持つ友人を増やす。',
             feedback: 'あなたは社会に出てからも多様なコミュニティとつながりを作りました。視野が広がり関係資本が増えましたが、お金の出費が重なっています。',
             effects: { relationshipCapital: 10, outsideWorkBelonging: 8, freedom: 3, money: -5, career: -2 },
-            stateEffects: { joinedHobbyCommunity: true, communityActive: true }
+            stateEffects: { joinedHobbyCommunity: true, communityActive: true, hasLocalCommunity: true }
           },
           {
             id: 'choice_2_C',
@@ -119,7 +119,7 @@ export const lifeStages: LifeStage[] = [
             description: '将来を共に歩めるような真剣な交際相手との時間を大切にし、関係を少しずつ深める。',
             feedback: 'あなたは特定の親密な関係を育む決意をしました。老後にも身近な支えになりうる家族関係の芽が生まれますが、外に広がる交友関係や個人の自由は落ち着いたものになりました。',
             effects: { familyCapital: 8, emergencySupport: 5, meaningCapital: 5, freedom: -4, money: -3 },
-            stateEffects: { hasPartner: true }
+            stateEffects: { hasPartner: true, single: false }
           },
           {
             id: 'choice_2_D',
@@ -127,7 +127,7 @@ export const lifeStages: LifeStage[] = [
             description: '自分の興味のあるコアな趣味や、オンラインで完結する創作活動に一人の時間を捧げる。',
             feedback: 'あなたは自分だけの深い精神世界を守ることに集中しました。自由度は最大化され、高い個人の満足感を得ましたが、現実のリアルな人間関係は希薄化しつつあります。',
             effects: { freedom: 10, meaningCapital: 6, relationshipCapital: -4, familyCapital: -3, emergencySupport: -3 },
-            stateEffects: { soloLifestyle: true }
+            stateEffects: { soloLifestyle: true, livingAlone: true }
           }
         ]
       },
@@ -180,7 +180,7 @@ export const lifeStages: LifeStage[] = [
             description: '予定を空け、初心者として一度だけ参加してみる。',
             feedback: 'あなたは仕事や学校以外の居場所を試しました。続くかはまだ分かりませんが、生活に新しい顔なじみが生まれます。',
             effects: { outsideWorkBelonging: 6, relationshipCapital: 4, money: -2, freedom: -1 },
-            stateEffects: { communityActive: true, joinedHobbyCommunity: true }
+            stateEffects: { communityActive: true, joinedHobbyCommunity: true, hasLocalCommunity: true }
           },
           {
             id: 'choice_2_circle_B',
@@ -349,7 +349,7 @@ export const lifeStages: LifeStage[] = [
             description: 'パートナーと婚姻関係を結び、二人の世帯としての生活設計と経済的統合を行う。',
             feedback: 'あなたは家庭を持つ道を選びました。強力な家族資本と将来の心理的安心感を得ましたが、自由な転職や自分のためだけに全額のお金を使う暮らしからは離れました。',
             effects: { familyCapital: 12, emergencySupport: 8, meaningCapital: 5, freedom: -7, money: -4, career: -2 },
-            stateEffects: { hasPartner: true, married: true, familyOriented: true, soloLifestyle: false }
+            stateEffects: { hasPartner: true, married: true, single: false, livingWithFamily: true, familyOriented: true, soloLifestyle: false, livingAlone: false }
           },
           {
             id: 'choice_4_B',
@@ -365,7 +365,7 @@ export const lifeStages: LifeStage[] = [
             description: '周囲の動向に惑わされず、今の自分のライフスタイル、自由な時間、自分のペースを崩さない暮らしを維持する。',
             feedback: 'あなたは自己のペースを守り、自由な生活を延長しました。プレッシャーから解放され高い自由を得ましたが、次のライフステージへ進む周囲と少しずつ話題が合わなくなってきました。',
             effects: { freedom: 10, health: 3, familyCapital: -4, relationshipCapital: -2, emergencySupport: -2 },
-            stateEffects: { hasPartner: false, married: false, soloLifestyle: true }
+            stateEffects: { hasPartner: false, married: false, single: true, soloLifestyle: true, livingAlone: true }
           },
           {
             id: 'choice_4_D',
@@ -373,7 +373,7 @@ export const lifeStages: LifeStage[] = [
             description: 'シェアハウスに入居したり、定期的に顔を合わせるバーや趣味のコミュニティに通い詰めて新たな友人関係を作る。',
             feedback: 'あなたは仕事と家庭以外のセーフティネット（サードプレイス）を作りました。仕事以外の所属感と友人の輪が広がりましたが、特定の誰かと将来を共にする意思決定は保留されています。',
             effects: { outsideWorkBelonging: 10, relationshipCapital: 7, emergencySupport: 4, freedom: 3, money: -3 },
-            stateEffects: { communityActive: true }
+            stateEffects: { communityActive: true, hasLocalCommunity: true }
           }
         ]
       },
@@ -389,7 +389,7 @@ export const lifeStages: LifeStage[] = [
             description: '時期や住まい、お金の分担まで具体的に話し合う。',
             feedback: 'あなたは関係を言葉にし、二人で将来を設計する方向へ踏み出しました。安心感は増しましたが、自由に動ける余白は少し減りました。',
             effects: { familyCapital: 8, emergencySupport: 4, meaningCapital: 3, freedom: -4, money: -2 },
-            stateEffects: { hasPartner: true, married: true, familyOriented: true, soloLifestyle: false }
+            stateEffects: { hasPartner: true, married: true, single: false, livingWithFamily: true, familyOriented: true, soloLifestyle: false, livingAlone: false }
           },
           {
             id: 'choice_4_partner_B',
@@ -397,7 +397,7 @@ export const lifeStages: LifeStage[] = [
             description: '結婚の話は先延ばしにし、自分の時間を優先したいと話す。',
             feedback: 'あなたは正直に自由を守りたい気持ちを伝えました。自分のペースは保てますが、相手との将来像には距離が生まれました。',
             effects: { freedom: 7, familyCapital: -4, relationshipCapital: -2, emergencySupport: -2 },
-            stateEffects: { hasPartner: false, married: false, soloLifestyle: true }
+            stateEffects: { hasPartner: false, married: false, single: true, soloLifestyle: true, livingAlone: true }
           },
           {
             id: 'choice_4_partner_C',
@@ -461,7 +461,7 @@ export const lifeStages: LifeStage[] = [
             description: '住人の雰囲気を見て、生活が合うか確かめる。',
             feedback: 'あなたは新しい共同生活の可能性を試しました。自由は少し減りますが、日常的に話す相手が増えます。',
             effects: { relationshipCapital: 6, outsideWorkBelonging: 4, money: 3, freedom: -3 },
-            stateEffects: { communityActive: true, soloLifestyle: false }
+            stateEffects: { communityActive: true, hasLocalCommunity: true, soloLifestyle: false }
           },
           {
             id: 'choice_4_house_B',
@@ -469,7 +469,7 @@ export const lifeStages: LifeStage[] = [
             description: '静かな部屋と自分のペースを優先する。',
             feedback: 'あなたは一人の暮らしを守りました。気楽さはありますが、日常の雑談や気づかいの接点は増えません。',
             effects: { freedom: 5, health: 2, relationshipCapital: -3, outsideWorkBelonging: -2 },
-            stateEffects: { soloLifestyle: true }
+            stateEffects: { soloLifestyle: true, livingAlone: true }
           },
           {
             id: 'choice_4_house_C',
@@ -477,7 +477,7 @@ export const lifeStages: LifeStage[] = [
             description: '入居はせず、住人の集まりに一度だけ顔を出す。',
             feedback: 'あなたは住まいを変えずに関係だけ試しました。負担は小さく、ゆるい接点が一つ増えます。',
             effects: { relationshipCapital: 4, outsideWorkBelonging: 3, money: -1 },
-            stateEffects: { communityActive: true }
+            stateEffects: { communityActive: true, hasLocalCommunity: true }
           },
           {
             id: 'choice_4_house_D',
@@ -485,7 +485,7 @@ export const lifeStages: LifeStage[] = [
             description: '入居はせず、そのハウスが運営する共有スペースやイベントに仕事や作業で定期的に通う。',
             feedback: 'あなたは住まいというプライベートな空間は守りつつ、他者と交わるサードプレイスを確保しました。安定したプライバシーと、孤立を防ぐネットワークが生まれます。',
             effects: { outsideWorkBelonging: 6, relationshipCapital: 5, freedom: 1, money: -2 },
-            stateEffects: { communityActive: true }
+            stateEffects: { communityActive: true, hasLocalCommunity: true }
           }
         ]
       }
@@ -591,7 +591,7 @@ export const lifeStages: LifeStage[] = [
             description: '家計、住まい、働き方を見直し、具体的に動き出す。',
             feedback: 'あなたは次世代を迎える準備を始めました。家族の結束と意味は強まりますが、自分だけの時間とお金は大きく変わります。',
             effects: { nextGeneration: 12, familyCapital: 8, meaningCapital: 6, freedom: -7, money: -5 },
-            stateEffects: { hasChildren: true, familyOriented: true }
+            stateEffects: { hasChildren: true, hasChild: true, noChild: false, familyOriented: true, livingWithFamily: true }
           },
           {
             id: 'choice_5_children_B',
@@ -599,7 +599,7 @@ export const lifeStages: LifeStage[] = [
             description: '貯金や仕事の安定を優先し、時期を半年後に見直す。',
             feedback: 'あなたは急がず生活基盤を整えることにしました。夫婦の対話は続きますが、次世代との接点はまだ増えません。',
             effects: { familyCapital: 4, money: 3, emergencySupport: 2, nextGeneration: -2 },
-            stateEffects: { hasChildren: false }
+            stateEffects: { hasChildren: false, hasChild: false }
           },
           {
             id: 'choice_5_children_C',
@@ -607,7 +607,7 @@ export const lifeStages: LifeStage[] = [
             description: '二人の暮らしを軸に、老後や親族との関係を考える。',
             feedback: 'あなたは子どもを持たない前提を言葉にしました。自由と生活設計は保てますが、次世代との接点は意識的に作る必要があります。',
             effects: { freedom: 6, money: 4, nextGeneration: -6, familyCapital: -2, meaningCapital: -1 },
-            stateEffects: { hasChildren: false, soloLifestyle: true }
+            stateEffects: { hasChildren: false, hasChild: false, noChild: true, soloLifestyle: true }
           },
           {
             id: 'choice_5_children_D',
@@ -720,7 +720,7 @@ export const lifeStages: LifeStage[] = [
             description: '予定を空けて会場へ行き、近況を自分から話す。',
             feedback: 'あなたは昔の関係にもう一度顔を出しました。気まずさは少しありましたが、途切れていた地元のつながりが再び動き始めます。',
             effects: { relationshipCapital: 8, emergencySupport: 4, meaningCapital: 2, freedom: -2, money: -2 },
-            stateEffects: { localFriendship: true, reconnectedOldFriend: true }
+            stateEffects: { localFriendship: true, hasOldFriends: true, reconnectedOldFriend: true }
           },
           {
             id: 'choice_6_reunion_B',
@@ -728,7 +728,7 @@ export const lifeStages: LifeStage[] = [
             description: '仕事や家庭を理由に返信せず、そのまま通知を閉じる。',
             feedback: 'あなたは面倒な再会を避けました。その夜は気楽に過ごせますが、昔の友人との接点はさらに細くなりました。',
             effects: { freedom: 4, relationshipCapital: -4, emergencySupport: -2 },
-            stateEffects: { localFriendship: false }
+            stateEffects: { localFriendship: false, lostOldFriends: true }
           },
           {
             id: 'choice_6_reunion_C',
@@ -736,7 +736,7 @@ export const lifeStages: LifeStage[] = [
             description: '大人数は避け、仲の良かった友人に個別で近況を聞く。',
             feedback: 'あなたは無理のない形で旧友に声をかけました。派手な再会ではありませんが、続けやすい関係の芽が残ります。',
             effects: { relationshipCapital: 6, emergencySupport: 3, freedom: 1, meaningCapital: 2 },
-            stateEffects: { localFriendship: true, reconnectedOldFriend: true }
+            stateEffects: { localFriendship: true, hasOldFriends: true, reconnectedOldFriend: true }
           },
           {
             id: 'choice_6_reunion_D',
@@ -744,7 +744,7 @@ export const lifeStages: LifeStage[] = [
             description: '参加は保留し、近況と感謝を短く返信する。',
             feedback: 'あなたは会場には行かず、連絡だけは返しました。関係の再開は小さめですが、完全に途切れることは避けられます。',
             effects: { relationshipCapital: 3, emergencySupport: 1, freedom: 2 },
-            stateEffects: { localFriendship: true, reconnectedOldFriend: true }
+            stateEffects: { localFriendship: true, hasOldFriends: true, reconnectedOldFriend: true }
           }
         ]
       },
@@ -1285,6 +1285,7 @@ export const lifeStages: LifeStage[] = [
         stageId: 'stage_10',
         title: '定年退職と突然の「時間的自由」',
         description: '多くの人が組織の退職を迎え、カレンダーから日々の予定が消失します。毎朝決まった時間に行く場所がなくなり、膨大な自由時間が目の前に現れました。',
+        conditions: { employed: true },
         choices: [
           {
             id: 'choice_10_A',
@@ -1324,7 +1325,7 @@ export const lifeStages: LifeStage[] = [
         stageId: 'stage_10',
         title: '退職挨拶で何を話すか迷う',
         description: '最終出社日の前日、送別会で一言話してほしいと言われました。仕事の実績だけ話すこともできますが、後輩や同僚との関係をどう残すかを考えます。',
-        conditions: { managementTrack: true },
+        conditions: { managementTrack: true, employed: true },
         choices: [
           {
             id: 'choice_10_speech_A',

@@ -7,13 +7,14 @@ import StageProgress from '@/components/StageProgress';
 import LifeEventCard from '@/components/LifeEventCard';
 import ChoiceButton from '@/components/ChoiceButton';
 import StatsPanel from '@/components/StatsPanel';
-import FeedbackCard from '@/components/FeedbackCard';
 import { lifeStages } from '@/lib/lifeStages';
+import { randomEvents } from '@/lib/randomEvents';
 import { INITIAL_FLAGS, INITIAL_STATS, applyEffects, applyStateEffects } from '@/lib/gameLogic';
 import { Choice, ChoiceHistory, GameState, LifeEvent, PlayerFlags } from '@/types/game';
+import { compactText } from '@/lib/displayText';
 import { AnimatePresence, motion } from 'framer-motion';
 
-function eventMatchesConditions(event: LifeEvent, flags: PlayerFlags): boolean {
+function canShowEvent(event: LifeEvent, flags: PlayerFlags): boolean {
   if (event.conditions) {
     const matchesAll = (Object.entries(event.conditions) as Array<[keyof PlayerFlags, boolean]>).every(
       ([key, expectedValue]) => flags[key] === expectedValue
@@ -41,7 +42,7 @@ function findNextVisibleEventIndex(
   flags: PlayerFlags
 ): number {
   for (let index = startIndex; index < events.length; index++) {
-    if (eventMatchesConditions(events[index], flags)) {
+    if (canShowEvent(events[index], flags)) {
       return index;
     }
   }
@@ -60,6 +61,40 @@ function findNextPlayablePosition(startStageIndex: number, flags: PlayerFlags) {
   return null;
 }
 
+function canShowRandomEvent(event: LifeEvent, flags: PlayerFlags, seenEventIds: string[]): boolean {
+  if (!event.isRandom || seenEventIds.includes(event.id)) {
+    return false;
+  }
+
+  return canShowEvent(event, flags);
+}
+
+function selectRandomEvent(stageIndex: number, flags: PlayerFlags, seenEventIds: string[]): LifeEvent | null {
+  const stage = lifeStages[stageIndex];
+  if (!stage) {
+    return null;
+  }
+
+  const candidates = randomEvents.filter(
+    (event) => event.stageId === stage.id && canShowRandomEvent(event, flags, seenEventIds)
+  );
+
+  for (const event of candidates) {
+    if (Math.random() < (event.probability ?? 0.12)) {
+      return event;
+    }
+  }
+
+  return null;
+}
+
+function applyChoice(choice: Choice, gameState: GameState): GameState {
+  return {
+    stats: applyEffects(gameState.stats, choice.effects),
+    flags: applyStateEffects(gameState.flags, choice.stateEffects),
+  };
+}
+
 export default function GamePage() {
   const router = useRouter();
   
@@ -70,10 +105,12 @@ export default function GamePage() {
     stats: INITIAL_STATS,
     flags: INITIAL_FLAGS,
   });
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
+  const [currentRandomEvent, setCurrentRandomEvent] = useState<LifeEvent | null>(null);
   const [lastEffects, setLastEffects] = useState<Choice['effects'] | null>(null);
   const [history, setHistory] = useState<ChoiceHistory[]>([]);
+  const [seenEventIds, setSeenEventIds] = useState<string[]>([]);
+  const [recentFeedback, setRecentFeedback] = useState<string | null>(null);
+  const [isAdvancing, setIsAdvancing] = useState(false);
 
   useEffect(() => {
     // ゲーム開始時にセッションストレージをクリア
@@ -83,33 +120,83 @@ export default function GamePage() {
   }, []);
 
   const currentStage = lifeStages[currentStageIndex];
-  const currentEvent = currentStage?.events[currentEventIndex];
+  const currentEvent = currentRandomEvent ?? currentStage?.events[currentEventIndex];
   const visibleEventCount = currentStage
-    ? currentStage.events.filter((event) => eventMatchesConditions(event, gameState.flags)).length
+    ? currentStage.events.filter((event) => canShowEvent(event, gameState.flags)).length
     : 0;
   const currentVisibleEventNumber = currentStage
     ? currentStage.events
         .slice(0, currentEventIndex + 1)
-        .filter((event) => eventMatchesConditions(event, gameState.flags)).length
+        .filter((event) => canShowEvent(event, gameState.flags)).length
     : 0;
 
-  const handleChoiceSelect = (choice: Choice) => {
-    if (!currentStage || !currentEvent) {
+  const saveGameProgress = (
+    nextStats = gameState.stats,
+    nextFlags = gameState.flags,
+    nextHistory = history
+  ) => {
+    sessionStorage.setItem('loneliness_game_stats', JSON.stringify(nextStats));
+    sessionStorage.setItem('loneliness_game_history', JSON.stringify(nextHistory));
+    sessionStorage.setItem('loneliness_game_flags', JSON.stringify(nextFlags));
+  };
+
+  const goToResult = (nextStats: GameState['stats'], nextFlags: PlayerFlags, nextHistory: ChoiceHistory[]) => {
+    saveGameProgress(nextStats, nextFlags, nextHistory);
+    router.push('/result');
+  };
+
+  const advanceToNextEvent = (
+    nextStats: GameState['stats'],
+    nextFlags: PlayerFlags,
+    nextHistory: ChoiceHistory[],
+    nextSeenEventIds: string[],
+    answeredRandomEvent: boolean
+  ) => {
+    if (!currentStage) {
+      goToResult(nextStats, nextFlags, nextHistory);
       return;
     }
 
-    setSelectedChoice(choice);
-    setLastEffects(choice.effects);
-    
-    // ステータスの更新
-    const newStats = applyEffects(gameState.stats, choice.effects);
-    const newFlags = applyStateEffects(gameState.flags, choice.stateEffects);
-    setGameState({
-      stats: newStats,
-      flags: newFlags,
-    });
+    if (!answeredRandomEvent) {
+      const randomEvent = selectRandomEvent(currentStageIndex, nextFlags, nextSeenEventIds);
+      if (randomEvent) {
+        setCurrentRandomEvent(randomEvent);
+        return;
+      }
+    }
 
-    // 履歴の追加
+    const nextEventIndex = findNextVisibleEventIndex(
+      currentStage.events,
+      currentEventIndex + 1,
+      nextFlags
+    );
+
+    if (nextEventIndex !== -1) {
+      setCurrentEventIndex(nextEventIndex);
+      setCurrentRandomEvent(null);
+      return;
+    }
+
+    const nextPosition = findNextPlayablePosition(currentStageIndex + 1, nextFlags);
+
+    if (nextPosition) {
+      setCurrentStageIndex(nextPosition.stageIndex);
+      setCurrentEventIndex(nextPosition.eventIndex);
+      setCurrentRandomEvent(null);
+    } else {
+      goToResult(nextStats, nextFlags, nextHistory);
+    }
+  };
+
+  const handleChoiceSelect = (choice: Choice) => {
+    if (!currentStage || !currentEvent || isAdvancing) {
+      return;
+    }
+
+    setIsAdvancing(true);
+    setLastEffects(choice.effects);
+
+    const nextGameState = applyChoice(choice, gameState);
     const newHistoryItem: ChoiceHistory = {
       eventId: currentEvent.id,
       eventTitle: currentEvent.title,
@@ -121,51 +208,24 @@ export default function GamePage() {
       stateEffectsApplied: choice.stateEffects,
       meaning: choice.feedback,
     };
-    setHistory([...history, newHistoryItem]);
-    
-    setShowFeedback(true);
-  };
+    const nextHistory = [...history, newHistoryItem];
+    const nextSeenEventIds = [...seenEventIds, currentEvent.id];
 
-  const saveResultState = () => {
-    sessionStorage.setItem('loneliness_game_stats', JSON.stringify(gameState.stats));
-    sessionStorage.setItem('loneliness_game_history', JSON.stringify(history));
-    sessionStorage.setItem('loneliness_game_flags', JSON.stringify(gameState.flags));
-  };
+    setGameState(nextGameState);
+    setHistory(nextHistory);
+    setSeenEventIds(nextSeenEventIds);
+    setRecentFeedback(compactText(choice.feedback, 58));
 
-  const handleNext = () => {
-    if (!currentStage) {
-      saveResultState();
-      router.push('/result');
-      return;
-    }
-
-    const nextEventIndex = findNextVisibleEventIndex(
-      currentStage.events,
-      currentEventIndex + 1,
-      gameState.flags
-    );
-
-    if (nextEventIndex !== -1) {
-      setCurrentEventIndex(nextEventIndex);
-      setShowFeedback(false);
-      setSelectedChoice(null);
-      setLastEffects(null);
-      return;
-    }
-
-    const nextPosition = findNextPlayablePosition(currentStageIndex + 1, gameState.flags);
-
-    if (nextPosition) {
-      setCurrentStageIndex(nextPosition.stageIndex);
-      setCurrentEventIndex(nextPosition.eventIndex);
-      setShowFeedback(false);
-      setSelectedChoice(null);
-      setLastEffects(null);
-    } else {
-      // 最終結果を sessionStorage に保存して結果ページへ遷移
-      saveResultState();
-      router.push('/result');
-    }
+    window.setTimeout(() => {
+      advanceToNextEvent(
+        nextGameState.stats,
+        nextGameState.flags,
+        nextHistory,
+        nextSeenEventIds,
+        Boolean(currentRandomEvent)
+      );
+      setIsAdvancing(false);
+    }, 120);
   };
 
   return (
@@ -190,48 +250,34 @@ export default function GamePage() {
 
         <div className="flex-1 flex flex-col gap-6">
           <AnimatePresence mode="wait">
-            {!showFeedback ? (
-              // 状況説明と選択肢
-              <motion.div
-                key={`stage-${currentStageIndex}-event-${currentEventIndex}`}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.3 }}
-                className="flex flex-col gap-6"
-              >
-                {currentEvent && <LifeEventCard event={currentEvent} />}
-
-                {/* 選択肢リスト */}
-                <div className="flex flex-col gap-3">
-                  {currentEvent?.choices.map((choice, idx) => (
-                    <ChoiceButton
-                      key={choice.id}
-                      choice={choice}
-                      index={idx}
-                      onClick={() => handleChoiceSelect(choice)}
-                    />
-                  ))}
+            <motion.div
+              key={`${currentRandomEvent ? 'random' : 'stage'}-${currentStageIndex}-event-${currentEvent?.id ?? currentEventIndex}`}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col gap-6"
+            >
+              {recentFeedback && (
+                <div className="rounded-xl border border-amber-900/40 bg-amber-950/20 px-4 py-3 text-xs font-medium leading-relaxed text-amber-100/90">
+                  {recentFeedback}
                 </div>
-              </motion.div>
-            ) : (
-              // 選択結果フィードバック
-              <motion.div
-                key={`feedback-${currentStageIndex}`}
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.3 }}
-              >
-                {selectedChoice && (
-                  <FeedbackCard
-                    feedbackText={selectedChoice.feedback}
-                    effects={selectedChoice.effects}
-                    onNext={handleNext}
+              )}
+
+              {currentEvent && <LifeEventCard event={currentEvent} />}
+
+              <div className="flex flex-col gap-3">
+                {currentEvent?.choices.map((choice, idx) => (
+                  <ChoiceButton
+                    key={choice.id}
+                    choice={choice}
+                    index={idx}
+                    disabled={isAdvancing}
+                    onClick={() => handleChoiceSelect(choice)}
                   />
-                )}
-              </motion.div>
-            )}
+                ))}
+              </div>
+            </motion.div>
           </AnimatePresence>
         </div>
       </main>
