@@ -10,12 +10,20 @@ import StatsPanel from '@/components/StatsPanel';
 import LifeStatusBar from '@/components/LifeStatusBar';
 import { lifeStages } from '@/lib/lifeStages';
 import { randomEvents } from '@/lib/randomEvents';
+import { statusEvents } from '@/lib/statusEvents';
 import { INITIAL_FLAGS, INITIAL_LIFE_STATUS, INITIAL_STATS, applyEffects, applyLifeStatusEffects, applyStateEffects } from '@/lib/gameLogic';
 import { Choice, ChoiceHistory, GameState, LifeEvent, LifeStatus, LifeStatusConditions, PlayerFlags } from '@/types/game';
 import { compactText } from '@/lib/displayText';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const STAGE_AGES = [18, 22, 26, 29, 32, 37, 45, 52, 57, 62, 67, 75];
+
+function getStageEvents(stageId: string): LifeEvent[] {
+  return [
+    ...(lifeStages.find((stage) => stage.id === stageId)?.events ?? []),
+    ...statusEvents.filter((event) => event.stageId === stageId),
+  ];
+}
 
 function withStageAge(lifeStatus: LifeStatus, stageIndex: number): LifeStatus {
   return {
@@ -92,7 +100,7 @@ function findNextPlayablePosition(startStageIndex: number, gameState: GameState)
       ...gameState,
       lifeStatus: withStageAge(gameState.lifeStatus, stageIndex),
     };
-    const eventIndex = findNextVisibleEventIndex(lifeStages[stageIndex].events, 0, agedGameState);
+    const eventIndex = findNextVisibleEventIndex(getStageEvents(lifeStages[stageIndex].id), 0, agedGameState);
     if (eventIndex !== -1) {
       return { stageIndex, eventIndex };
     }
@@ -182,6 +190,7 @@ export default function GamePage() {
   const [seenEventIds, setSeenEventIds] = useState<string[]>([]);
   const [recentFeedback, setRecentFeedback] = useState<string | null>(null);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [swipeDelta, setSwipeDelta] = useState(0);
   const swipeStartX = useRef<number | null>(null);
 
   useEffect(() => {
@@ -193,12 +202,13 @@ export default function GamePage() {
   }, []);
 
   const currentStage = lifeStages[currentStageIndex];
-  const currentEvent = currentRandomEvent ?? currentStage?.events[currentEventIndex];
+  const currentStageEvents = currentStage ? getStageEvents(currentStage.id) : [];
+  const currentEvent = currentRandomEvent ?? currentStageEvents[currentEventIndex];
   const visibleEventCount = currentStage
-    ? currentStage.events.filter((event) => canShowEvent(event, gameState)).length
+    ? currentStageEvents.filter((event) => canShowEvent(event, gameState)).length
     : 0;
   const currentVisibleEventNumber = currentStage
-    ? currentStage.events
+    ? currentStageEvents
         .slice(0, currentEventIndex + 1)
         .filter((event) => canShowEvent(event, gameState)).length
     : 0;
@@ -242,7 +252,7 @@ export default function GamePage() {
     }
 
     const nextEventIndex = findNextVisibleEventIndex(
-      currentStage.events,
+      getStageEvents(currentStage.id),
       currentEventIndex + 1,
       nextGameState
     );
@@ -312,11 +322,13 @@ export default function GamePage() {
   const handleSwipeEnd = (endX: number) => {
     if (!currentEvent || !canSwipeChoices || swipeStartX.current === null) {
       swipeStartX.current = null;
+      setSwipeDelta(0);
       return;
     }
 
     const deltaX = endX - swipeStartX.current;
     swipeStartX.current = null;
+    setSwipeDelta(0);
 
     if (Math.abs(deltaX) < 72) {
       return;
@@ -367,23 +379,41 @@ export default function GamePage() {
 
               {currentEvent?.choices.length === 2 && (
                 <div className="grid grid-cols-2 gap-2 rounded-xl border border-gray-800 bg-gray-900/40 px-3 py-2 text-[11px] font-bold text-gray-300">
-                  <span className="truncate">← {compactText(currentEvent.choices[0].label, 18)}</span>
-                  <span className="truncate text-right">{compactText(currentEvent.choices[1].label, 18)} →</span>
+                  <span className={`truncate transition-colors ${swipeDelta < -32 ? 'text-rose-200' : ''}`}>← {compactText(currentEvent.choices[0].label, 18)}</span>
+                  <span className={`truncate text-right transition-colors ${swipeDelta > 32 ? 'text-emerald-200' : ''}`}>{compactText(currentEvent.choices[1].label, 18)} →</span>
                 </div>
               )}
 
               <div
-                className="flex flex-col gap-3 touch-pan-y"
+                className="relative flex flex-col gap-3 touch-pan-y"
+                style={{
+                  transform: canSwipeChoices ? `translateX(${Math.max(-26, Math.min(26, swipeDelta / 4))}px)` : undefined,
+                  transition: swipeDelta === 0 ? 'transform 140ms ease-out' : undefined,
+                }}
                 onPointerDown={(event) => {
                   if (canSwipeChoices && event.pointerType !== 'mouse') {
                     swipeStartX.current = event.clientX;
+                    setSwipeDelta(0);
+                  }
+                }}
+                onPointerMove={(event) => {
+                  if (canSwipeChoices && swipeStartX.current !== null && event.pointerType !== 'mouse') {
+                    setSwipeDelta(event.clientX - swipeStartX.current);
                   }
                 }}
                 onPointerUp={(event) => handleSwipeEnd(event.clientX)}
                 onPointerCancel={() => {
                   swipeStartX.current = null;
+                  setSwipeDelta(0);
                 }}
               >
+                {currentEvent?.choices.length === 2 && Math.abs(swipeDelta) > 32 && (
+                  <div className={`pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl border text-sm font-black backdrop-blur-sm ${swipeDelta > 0 ? 'border-emerald-700/70 bg-emerald-950/35 text-emerald-100' : 'border-rose-700/70 bg-rose-950/35 text-rose-100'}`}>
+                    {swipeDelta > 0
+                      ? `${compactText(currentEvent.choices[1].label, 20)}で答える`
+                      : `${compactText(currentEvent.choices[0].label, 20)}で答える`}
+                  </div>
+                )}
                 {currentEvent?.choices.map((choice, idx) => (
                   <ChoiceButton
                     key={choice.id}
